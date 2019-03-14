@@ -5,7 +5,7 @@ import gate.creole.metadata.AutoInstance;
 import gate.creole.metadata.AutoInstanceParam;
 import gate.creole.metadata.CreoleResource;
 
-@CreoleResource(name = "Genric English Sentiment Analysis",
+@CreoleResource(name = "Generic English Sentiment Analysis",
     comment = "Ready-made English Sentiment Analysis application",
     autoinstances = @AutoInstance(parameters = {
 	@AutoInstanceParam(name="pipelineURL", value="resources/application.xgapp"),
