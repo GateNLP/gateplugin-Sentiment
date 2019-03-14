@@ -1,0 +1,52 @@
+Phase: SentimentHolder
+Input: SentenceSentiment
+Options: control = appelt
+
+
+
+Rule:SentenceContainsHolder
+Priority: 500
+
+// If there's a Holder annotation in the sentence, use that as the feature for the SentenceSentiment. This will be a username.
+
+(
+{SentenceSentiment contains Holder}
+):tag
+-->
+{
+  AnnotationSet SentenceAS = (AnnotationSet) bindings.get("tag");
+  gate.Annotation SentenceAnn = (gate.Annotation) SentenceAS.iterator().next();
+  FeatureMap features = SentenceAnn.getFeatures();
+  
+  AnnotationSet HolderAS = inputAS.get("Holder", SentenceAS.firstNode().getOffset(), SentenceAS.lastNode().getOffset());
+  gate.Annotation HolderAnn = (gate.Annotation) HolderAS.iterator().next();
+ 
+    features.put("holder", HolderAnn.getFeatures().get("username"));
+  } 
+
+
+Rule: AddSentimentHolder
+Priority: 100
+
+// If a sentence containing a sentiment doesn't already have a Holder feature, add the value of the userID feature from the document features
+
+(
+ {SentenceSentiment}
+):tag
+-->
+
+{
+  AnnotationSet SentenceAS = (AnnotationSet) bindings.get("tag");
+  gate.Annotation SentenceAnn = (gate.Annotation) SentenceAS.iterator().next();
+ FeatureMap features = SentenceAnn.getFeatures();
+  
+ if (! features.containsKey("holder")) 
+
+// use this one if we have docs collected by OU which have snsuerid feature  
+  features.put("holder", doc.getFeatures().get("snsuserid"));
+
+// use this one if we have docs collected from the MWCC which have title feature as author
+//    features.put("holder", doc.getFeatures().get("title"));
+  } 
+ 
+

@@ -1,0 +1,20 @@
+Phase: RemoveFeatures
+Input: Question
+Options: control = appelt
+
+
+Rule: WHquestionInvitation
+Priority: 2000
+/* Why join us? */
+
+(
+ {Question.kind == wh-question, Question contains Invitation}
+ ):tag
+ -->
+ 
+  {
+  AnnotationSet tagAS = (AnnotationSet) bindings.get("tag");
+
+  AnnotationSet invitationAS = inputAS.get("Invitation", tagAS.firstNode().getOffset(), tagAS.lastNode().getOffset());
+  inputAS.removeAll(invitationAS);
+  }

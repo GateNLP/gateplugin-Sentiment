@@ -1,0 +1,10 @@
+Phase:	QuestionMark
+Input: Token
+Options: control = appelt
+
+Rule: QuestionMark
+(
+ {Token.string == "?"}
+):question
+-->
+:question.QuestionMark = {rule = "QuestionMark"}

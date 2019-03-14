@@ -1,0 +1,12 @@
+Phase: SentenceSet
+Input: Sentence
+Options: control = appelt
+
+Rule: Sentence
+(
+ ({Sentence})+
+):tag
+-->
+:tag.SentenceSet = {}
+
+

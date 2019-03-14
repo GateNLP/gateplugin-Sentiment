@@ -1,0 +1,9 @@
+affect_anger_synonyms.lst:sentiment:anger
+affect_disgust_synonyms.lst:sentiment:disgust
+affect_fear_synonyms.lst:sentiment:fear
+affect_joy_synonyms.lst:sentiment:joy
+affect_sadness_synonyms.lst:sentiment:sadness
+affect_surprise_synonyms.lst:sentiment:surprise
+affect_bad_synonyms.lst:sentiment:bad
+affect_good_synonyms.lst:sentiment:good
+cute_synonyms.lst:sentiment:cute

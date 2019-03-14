@@ -1,0 +1,8 @@
+anger.lst:sentiment:anger
+anticipation.lst:sentiment:anticipation
+disgust.lst:sentiment:disgust
+fear.lst:sentiment:fear
+joy.lst:sentiment:joy
+sadness.lst:sentiment:sadness
+surprise.lst:sentiment:surprise
+trust.lst:sentiment:trust

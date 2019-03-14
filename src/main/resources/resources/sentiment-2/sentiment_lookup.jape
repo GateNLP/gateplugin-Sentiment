@@ -1,0 +1,110 @@
+Phase: SentiWSLookup
+Input: Lookup SentiWordLookup SentiLookup
+Options: control = appelt
+
+/* joy, good = positive, surprise = nothing, all the rest are negative */
+
+
+ 
+Rule:LookupStopList
+Priority: 1000
+( 
+ {Lookup.majorType == stop}|
+ {SentiWordLookup.minorType == intensifier}|
+ {Lookup.majorType == no-sentiment}
+ ):tag
+ -->
+:tag.Stop = {}
+
+Rule: SentiWordLookupPosHighScore
+Priority: 500
+/* lookups could be SentiWordLookup or just SentiLookup, depending if they have a POS category or not */
+
+(
+ {SentiWordLookup.majorType == sentiment, SentiWordLookup.minorType == joy }|
+ {SentiWordLookup.majorType == sentiment, SentiWordLookup.minorType == good }| 
+ {SentiWordLookup.majorType == sentiment, SentiWordLookup.minorType == cute }|
+ {SentiWordLookup.majorType == sentiment, SentiWordLookup.minorType == happy }
+ 
+):tag
+-->
+:tag.SentiWSLookupHigh = {polarity= positive, emotion = :tag.SentiWordLookup.minorType, score = 0.5, rule="SentiWordLookupPosHighScore"}
+
+
+Rule: SentiLookupPosHighScore
+Priority: 500
+/* lookups could be SentiWordLookup or just SentiLookup, depending if they have a POS category or not */
+
+(
+ {SentiLookup.majorType == sentiment, SentiLookup.minorType == joy }|
+ {SentiLookup.majorType == sentiment, SentiLookup.minorType == good }|
+ {SentiLookup.majorType == sentiment, SentiLookup.minorType == cute }|
+ {SentiLookup.majorType == sentiment, SentiLookup.minorType == happy }
+ 
+):tag
+-->
+:tag.SentiWSLookupHigh = {polarity= positive, emotion = :tag.SentiLookup.minorType, score = 0.5, rule="SentiLookupPosHighScore"}
+
+
+Rule: LookupSwearAdjective
+Priority: 300
+(
+ {Lookup.majorType == swear, Lookup.minorType == adjective}
+):tag
+-->
+:tag.Swear = {category = :tag.Lookup.minorType}
+
+Rule: LookupSwear
+Priority: 250
+(
+ {SentiWordLookup.majorType == swear, SentiWordLookup.minorType == noun}
+):tag
+-->
+:tag.SentiWSLookupHigh = {polarity= negative, score = -0.75, kind = "swear", rule="LookupNegHighScore"}
+ 
+
+Rule: SentiWordLookupNegHighScore
+Priority: 10
+(
+ {SentiWordLookup.majorType == sentiment}
+):tag
+-->
+:tag.SentiWSLookupHigh = {polarity= negative,  emotion = :tag.SentiWordLookup.minorType, score = -0.5, rule="SentiWordLookupNegHighScore"}
+
+
+Rule: SentiLookupNegHighScore
+Priority: 10
+(
+ {SentiWordLookup.majorType == sentiment}
+):tag
+-->
+:tag.SentiWSLookupHigh = {polarity= negative,  emotion = :tag.SentiLookup.minorType, score = -0.5, rule="SentiLookupNegHighScore"}
+
+// Rule: LookupNegNoun
+// Priority: 10
+// (
+//  {Lookup.majorType == no}
+//  {SentiWordLookup.majorType == sentiment,  SentiWordLookup.category == noun}
+// ):tag
+// -->
+// :tag.SentiWSLookupHigh = {polarity= negative,  emotion = :tag.SentiWordLookup.minorType, score = -0.5, rule="LookupNegNoun"}
+
+
+Rule:LookupRT
+(
+ {Lookup.majorType == tweet}
+):tag
+-->
+:tag.RT = {rule = "LookupRT"}
+
+Rule: LookupSays
+(
+ {Lookup.majorType == say}|
+ {Lookup.majorType == verb-opinion}
+):tag
+-->
+:tag.Says = {rule = "LookupSays"}
+
+
+
+

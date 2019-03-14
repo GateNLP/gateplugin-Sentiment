@@ -1,0 +1,11 @@
+MultiPhase:	TestTheGrammars
+Phases: 
+
+process_postags
+question
+sentiment_emotion_affect
+sentiment_modifier
+sentiment_negative
+sentiment_target_short
+sentiment_sentence
+sentiment_event

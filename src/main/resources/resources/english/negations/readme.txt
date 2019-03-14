@@ -1,0 +1,1 @@
+negations.lst contains list of english negations

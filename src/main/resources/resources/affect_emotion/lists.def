@@ -1,0 +1,8 @@
+affect_anger.lst:sentiment:anger
+affect_disgust.lst:sentiment:disgust
+affect_fear.lst:sentiment:fear
+affect_joy.lst:sentiment:joy
+affect_sadness.lst:sentiment:sadness
+affect_surprise.lst:sentiment:surprise
+affect_bad.lst:sentiment:bad
+affect_good.lst:sentiment:good

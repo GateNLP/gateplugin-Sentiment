@@ -1,0 +1,15 @@
+smiley_cheeky.lst:sentiment:cheeky::SentiLookup
+swear_adj.lst:swear:adjective::SentiLookup
+positive.lst:sentiment:happy::SentiLookup
+negative.lst:sentiment:bad::SentiLookup
+swear_nouns.lst:sentiment:bad:noun:SentiLookup
+adjective-intensifier.lst:sentiment:intensifier::SentiWordLookup
+affect_emotion/affect_anger.lst:sentiment:anger::SentiWordLookup
+affect_emotion/affect_disgust.lst:sentiment:disgust::SentiWordLookup
+affect_emotion/affect_fear.lst:sentiment:fear::SentiWordLookup
+affect_emotion/affect_joy.lst:sentiment:happy::SentiWordLookup
+affect_emotion/affect_sadness.lst:sentiment:sadness::SentiWordLookup
+affect_emotion/affect_surprise.lst:sentiment:surprise::SentiWordLookup
+affect_emotion/affect_bad.lst:sentiment:bad::SentiWordLookup
+affect_emotion/affect_good.lst:sentiment:happy::SentiWordLookup
+cute.lst:sentiment:cute::SentiWordLookup

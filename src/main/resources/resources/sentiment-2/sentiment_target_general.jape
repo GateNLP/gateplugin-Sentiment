@@ -1,0 +1,90 @@
+Phase: SentimentTargetGeneral
+Input: Sentiment Term Split Sentence NounChunk VG Token CandidateTarget
+Options: control = appelt
+
+/* This grammar should be used when you want to include the targets of opinions that are also NPs and not just terms or topics. This is probably the default option for a generic sentiment app.
+*/
+
+
+
+Rule: XVerbSentiment
+Priority: 200
+// e.g. "this poster is vile" 
+
+(
+(
+ ({NounChunk}):tag
+ {VG.voice == active}
+ ({Sentiment}):sentiTag
+):chunk 
+)
+-->
+:tag.SentimentTarget = {polarity= :sentiTag.Sentiment.polarity, 
+                        score = :sentiTag.Sentiment.score, 
+                        sarcasm = :sentiTag.Sentiment.sarcasm,
+						emotion = :sentiTag.Sentiment.emotion,
+                        rule="XVerbSentiment", 
+                        sentiment_string = :sentiTag.Sentiment@cleanString, 
+                        entity_target = :tag.NounChunk@cleanString},
+:chunk.ChunkSentiment = {rule = XVerbSentiment}
+
+
+Rule: NotNPSentimentNP
+Priority: 1000
+// Abilify bothers me
+
+(
+(
+ ({CandidateTarget})
+ ({Sentiment contains {VG.voice ==active}})
+ ({NounChunk})
+ ):chunk
+ )
+-->
+{}
+
+Rule: NPSentimentNP
+Priority: 200
+// e.g. sources fear alien attack
+
+(
+(
+ ({NounChunk}):holder
+ ({Sentiment contains {VG.voice ==active}}):sentiTag
+ ({NounChunk}):tag
+ ):chunk
+ )
+-->
+:tag.SentimentTarget = {polarity= :sentiTag.Sentiment.polarity, 
+                        score = :sentiTag.Sentiment.score, 
+                        sarcasm = :sentiTag.Sentiment.sarcasm,
+						emotion = :sentiTag.Sentiment.emotion,
+                        rule="NPSentimentNP",
+                        sentiment_string = :sentiTag.Sentiment@cleanString, 
+                        holder = :holder.NounChunk@cleanString, 
+                        entity_target = :tag.NounChunk@cleanString},
+:chunk.ChunkSentiment = {rule = NPSentimentNP}
+
+
+Rule: SentAdjectiveNoun
+Priority: 200
+// e.g. a scary film
+
+(
+(
+ ({Sentiment contains {VG.voice ==active}}):sentiTag
+ ({NounChunk}):tag
+ ):chunk
+ )
+-->
+:tag.SentimentTarget = {polarity= :sentiTag.Sentiment.polarity, 
+                        score = :sentiTag.Sentiment.score, 
+                        sarcasm = :sentiTag.Sentiment.sarcasm,
+						emotion = :sentiTag.Sentiment.emotion,
+                        rule="NPSentimentNP",
+                        sentiment_string = :sentiTag.Sentiment@cleanString, 
+                        entity_target = :tag.NounChunk@cleanString},
+:chunk.ChunkSentiment = {rule = NPSentimentNP}
+
+
+

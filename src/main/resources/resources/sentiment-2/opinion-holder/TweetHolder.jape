@@ -1,0 +1,20 @@
+Phase: TweetHolder
+Input: Author
+Options: control = appelt
+
+Rule: TweetHolder
+Priority: 100
+(
+   {Author.minorType==mp}|{Author.minorType==candidate}|{Author.minorType == leader}
+):tweetHolder
+ -->
+ {
+    AnnotationSet holderSet = (AnnotationSet) bindings.get("tweetHolder");
+    Annotation holder = holderSet.iterator().next();
+    FeatureMap featureMap = Factory.newFeatureMap();
+    featureMap.putAll(holder.getFeatures());
+    outputAS.add(holderSet.firstNode(), holderSet.lastNode(), "Holder", featureMap);
+ }
+
+
+

@@ -1,0 +1,40 @@
+Phase: PreProcess
+Input: Token Lookup
+Options: control = appelt
+
+/* finds imperatives in English tweets */
+
+Rule: Infinitive
+/* to turn off the light */
+Priority: 500
+
+(
+ {Token.category == TO}
+):tag
+--> 
+:tag.To ={}
+
+
+Rule: WhQuestion
+
+(
+ {Lookup.minorType == wh-question}
+ ):tag
+ -->
+ :tag.WhQuestionWord = {}
+ 
+ 
+Rule: FirstPerson
+ (
+  {Lookup.majorType == firstperson}
+  ):tag
+  -->
+  :tag.FirstPersonPronoun = {}
+  
+Rule: SecondPerson
+ (
+  {Lookup.majorType == secondperson}
+  ):tag
+  -->
+  :tag.SecondPersonPronoun = {}
+  

@@ -1,0 +1,69 @@
+Phase: EmotionsNegative
+Input: TempSentiment
+Options: control = appelt
+
+/* switch emotion when a positive sentiment has been converted to a negative one 
+
+joy —> anger
+cute —> disgust
+happy —> sadness
+good —> bad
+
+Note that we don't switch emotions when a negative sentiment has been converted to a positive one, because "I am not sad" does not necessarily indicate happiness
+
+However, if it's sarcastic, we do need to switch the emotions.
+
+*/
+
+
+Rule: GoodBad
+Priority: 500
+(
+ {TempSentiment.negated == yes, 
+  TempSentiment.original_emotion == good}
+):tag
+-->
+{
+  AnnotationSet tagAS = (AnnotationSet) bindings.get("tag");
+  gate.Annotation tagAnn =  (gate.Annotation) tagAS.iterator().next();
+  tagAnn.getFeatures().put("emotion", "bad");
+}
+
+Rule: HappySad
+Priority: 500
+(
+ {TempSentiment.negated == yes, 
+  TempSentiment.original_emotion == happy}
+):tag
+-->
+{
+  AnnotationSet tagAS = (AnnotationSet) bindings.get("tag");
+  gate.Annotation tagAnn =  (gate.Annotation) tagAS.iterator().next();
+  tagAnn.getFeatures().put("emotion", "sadness");
+}
+
+Rule: JoyAnger
+Priority: 500
+(
+ {TempSentiment.negated == yes, 
+  TempSentiment.original_emotion == joy}
+):tag
+-->
+{
+  AnnotationSet tagAS = (AnnotationSet) bindings.get("tag");
+  gate.Annotation tagAnn =  (gate.Annotation) tagAS.iterator().next();
+  tagAnn.getFeatures().put("emotion", "anger");
+}
+
+Rule: CuteDisgust
+Priority: 500
+(
+ {TempSentiment.negated == yes, 
+  TempSentiment.original_emotion == cute}
+):tag
+-->
+{
+  AnnotationSet tagAS = (AnnotationSet) bindings.get("tag");
+  gate.Annotation tagAnn =  (gate.Annotation) tagAS.iterator().next();
+  tagAnn.getFeatures().put("emotion", "disgust");
+}

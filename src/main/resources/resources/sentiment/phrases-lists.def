@@ -1,0 +1,12 @@
+affect_bad_embeddings_phrases.lst:sentiment:bad:phrase:SentiLookup
+affect_cute_embeddings_phrases.lst:sentiment:cute:phrase:SentiLookup
+affect_disgust_embeddings_phrases.lst:sentiment:disgust:phrase:SentiLookup
+affect_fear_embeddings_phrases.lst:sentiment:fear:phrase:SentiLookup
+affect_good_embeddings_phrases.lst:sentiment:good:phrase:SentiLookup
+affect_joy_embeddings_phrases.lst:sentiment:joy:phrase:SentiLookup
+bad_phrases.lst:sentiment:bad:phrase:SentiLookup
+go_bad_phrases.lst:sentiment:bad:phrase:SentiLookup
+go_well_phrases.lst:sentiment:good:phrase:SentiLookup
+no-sentiment-phrases.lst:no-sentiment::phrase
+positive-phrases.lst:sentiment:good:phrase:SentiLookup
+sarcasm-indicator.lst:sentiment:sarcasm:indicator:SentiLookup

@@ -1,0 +1,19 @@
+Phase: SentimentPhrase
+Input: Token NounChunk
+Options: control = appelt
+
+/* things like "Go Earth Hour!" */
+
+
+
+Rule: GoPhrase
+Priority: 500
+(
+ {Token.string == "Go"}
+ {NounChunk}
+ {Token.string == "!"}
+):tag
+-->
+:tag.SentiWSLookupHigh = {polarity= positive, emotion = "happy", score = 0.5, rule="GoPhrase"}
+
+

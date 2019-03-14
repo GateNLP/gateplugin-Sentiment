@@ -1,0 +1,80 @@
+Phase: SentiWSLookup
+Input: SentiWSLookupHigh Not ClauseSplit Split Negation
+Options: control = appelt
+
+
+Rule: SentiPositiveToNegative
+Priority: 500
+(
+ ({Not}|{Negation})
+ {SentiWSLookupHigh.polarity == positive}
+):tag
+-->
+:tag {
+   Long start = tagAnnots.firstNode().getOffset();
+   Long end = tagAnnots.lastNode().getOffset();
+   
+   Annotation lookup = tagAnnots.get("SentiWSLookupHigh").iterator().next();
+   float score = Float.parseFloat(lookup.getFeatures().get("score").toString());
+   
+   FeatureMap newf = Factory.newFeatureMap();
+   newf.put("polarity", "negative");
+   newf.put("negated", "yes");
+   newf.put("score", - score);
+   newf.put("rule", "SentiPositiveToNegative");
+   newf.put("original_emotion", lookup.getFeatures().get("emotion"));
+
+
+   try {
+      outputAS.add(start, end, "TempSentiment", newf);
+   }
+   catch (InvalidOffsetException e) {
+      e.printStackTrace();
+   }
+}
+
+
+Rule: SentiNegativeToPositive
+Priority: 500
+(
+ ({Not}|{Negation})
+ {SentiWSLookupHigh.polarity == negative}
+):tag
+-->
+:tag {
+   Long start = tagAnnots.firstNode().getOffset();
+   Long end = tagAnnots.lastNode().getOffset();
+   
+   Annotation lookup = tagAnnots.get("SentiWSLookupHigh").iterator().next();
+   float score = Float.parseFloat(lookup.getFeatures().get("score").toString());
+   
+   FeatureMap newf = Factory.newFeatureMap();
+   newf.put("polarity", "positive");
+   newf.put("negated", "yes");
+    newf.put("original_emotion", lookup.getFeatures().get("emotion"));
+
+   newf.put("score", - score);
+   newf.put("rule", "SentiNegativeToPositive");
+
+   try {
+      outputAS.add(start, end, "TempSentiment", newf);
+   }
+   catch (InvalidOffsetException e) {
+      e.printStackTrace();
+   }
+}
+
+
+Rule: SentiNoChange
+Priority: 100
+(
+ {SentiWSLookupHigh}
+):tag
+-->
+:tag.TempSentiment = 
+{polarity = :tag.SentiWSLookupHigh.polarity, 
+score = :tag.SentiWSLookupHigh.score, 
+rule= :tag.SentiWSLookupHigh.rule, 
+emotion = :tag.SentiWSLookupHigh.emotion, 
+kind = :tag.SentiWSLookupHigh.kind}
+

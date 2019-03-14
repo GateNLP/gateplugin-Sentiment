@@ -1,0 +1,149 @@
+Phase: SentenceSentiment
+Input: Sentence Sentiment SentiWSLookupHigh EntitySentiment SentenceSentiment Question Conditional
+Options: control = appelt
+
+
+
+Rule:NotSentimentSentence
+Priority: 1000
+(
+ {Question}
+)
+-->
+{}
+
+
+Rule:SentenceEntitySentiment
+Priority: 500
+
+// If a sentence contains an EntitySentiment, annotate that sentence as SentenceSentiment 
+// and add the entity as a feature
+
+(
+ {Sentence contains EntitySentiment}
+):tag
+-->
+
+{
+  AnnotationSet SentenceAS = (AnnotationSet) bindings.get("tag");
+ 
+  // get EntitySentiment info from within Sentence annotation
+  AnnotationSet SentiAS = inputAS.get("EntitySentiment", SentenceAS.firstNode().getOffset(), SentenceAS.lastNode().getOffset());
+  
+  gate.Annotation SentiAnn = (gate.Annotation) SentiAS.iterator().next();
+                     
+  FeatureMap features = Factory.newFeatureMap();
+  features.putAll(SentiAnn.getFeatures()); 
+  // putAll will include the entityURI feature
+
+  features.put("rule", "SentenceEntitySentiment");
+  outputAS.add(SentenceAS.firstNode(), SentenceAS.lastNode(), "SentenceSentiment", features);
+}
+
+
+Rule:SentenceConsequentSentiment
+Priority: 800
+
+// If a sentence contains a ConsequentSentiment, annotate that sentence as SentenceSentiment 
+// and add the entity as a feature
+
+(
+ {Sentence contains ConsequentSentiment}
+):tag
+-->
+
+{
+  AnnotationSet SentenceAS = (AnnotationSet) bindings.get("tag");
+ 
+ 
+  // get EntitySentiment info from within Sentence annotation
+  AnnotationSet SentiAS = inputAS.get("ConsequentSentiment", SentenceAS.firstNode().getOffset(), SentenceAS.lastNode().getOffset());
+  
+  gate.Annotation SentiAnn = (gate.Annotation) SentiAS.iterator().next();
+                     
+  FeatureMap features = Factory.newFeatureMap();
+  features.putAll(SentiAnn.getFeatures()); 
+  features.put("rule", "SentenceConsequentSentiment");
+  outputAS.add(SentenceAS.firstNode(), SentenceAS.lastNode(), "SentenceSentiment", features);
+}
+
+
+
+Rule: SentenceSentiment
+Priority: 300
+
+// If a sentence contains a sentiment that's not already been used for an entity or event,
+// annotate that sentence as SentenceSentiment
+
+(
+ {Sentence contains Sentiment}
+):tag
+-->
+
+{
+  AnnotationSet SentenceAS = (AnnotationSet) bindings.get("tag");
+ 
+ 
+  // get SentiWS info from within Sentence annotation
+  AnnotationSet SentiAS = inputAS.get("Sentiment", SentenceAS.firstNode().getOffset(), SentenceAS.lastNode().getOffset());
+  
+  gate.Annotation SentiAnn = (gate.Annotation) SentiAS.iterator().next();
+
+  FeatureMap features = Factory.newFeatureMap();
+
+try{
+String content = doc.getContent().getContent(SentiAnn.getStartNode().getOffset(),
+                 SentiAnn.getEndNode().getOffset()).toString();
+
+  features.put("sentiment_string", content);
+        
+  features.putAll(SentiAnn.getFeatures()); 
+  features.put("rule", "SentenceSentiment");
+  outputAS.add(SentenceAS.firstNode(), SentenceAS.lastNode(), "SentenceSentiment", features);
+  }
+
+catch(InvalidOffsetException ioe){
+      //this should never happen
+      throw new GateRuntimeException(ioe);
+    } 
+}
+
+Rule: SentimentLookup
+Priority: 100
+
+(
+ {Sentence contains SentiWSLookupHigh}
+):tag
+-->
+//:tag.SentenceSentiment = {rule="SentimentLookup"}
+
+{
+  AnnotationSet SentenceAS = (AnnotationSet) bindings.get("tag");
+ 
+ 
+  // get SentiWS info from within Sentence annotation
+  AnnotationSet SentiAS = inputAS.get("SentiWSLookupHigh", SentenceAS.firstNode().getOffset(), SentenceAS.lastNode().getOffset());
+  
+  gate.Annotation SentiAnn = (gate.Annotation) SentiAS.iterator().next();
+                     
+  FeatureMap features = Factory.newFeatureMap();
+
+try{
+String content = doc.getContent().getContent(SentiAnn.getStartNode().getOffset(),
+                 SentiAnn.getEndNode().getOffset()).toString();
+
+  features.put("sentiment_string", content);
+
+  features.putAll(SentiAnn.getFeatures()); 
+  features.put("rule", "SentimentLookup");
+  outputAS.add(SentenceAS.firstNode(), SentenceAS.lastNode(), "SentenceSentiment", features);
+  }
+catch(InvalidOffsetException ioe){
+      //this should never happen
+      throw new GateRuntimeException(ioe);
+     } 
+}
+
+
+
+

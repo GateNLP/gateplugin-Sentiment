@@ -1,0 +1,70 @@
+Phase: ConsequentSentiment
+Input: Consequent
+Options: control = appelt
+
+Rule: ConsequentSentimentPositive
+Priority: 1000
+(
+ {Consequent within ConditionalSentiment, Consequent.verbPolarity == pos}
+):tag
+-->
+
+
+{
+  AnnotationSet ConsequentAS = (AnnotationSet) bindings.get("tag");
+  gate.Annotation ConsequentAnn = (gate.Annotation) ConsequentAS.iterator().next();
+
+//AnnotationSet SentimentAS = inputAS.get("ConditionalSentiment", ConsequentAS.firstNode().getOffset(), ConsequentAS.lastNode().getOffset());
+ //gate.Annotation SentimentAnn = (gate.Annotation) SentimentAS.iterator().next();
+
+  FeatureMap features = Factory.newFeatureMap();
+  features.put("rule", "ConsequentSentimentPositive");
+  features.put("polarity", "positive");
+ 
+ // features.putAll(ConsequentAnn.getFeatures()); 
+
+ AnnotationSet SentenceSet = gate.Utils.getCoveringAnnotations(inputAS, ConsequentAnn, "ConditionalSentiment");
+ gate.Annotation SentenceAnn = (gate.Annotation) SentenceSet.iterator().next();
+ features.put("score", SentenceAnn.getFeatures().get("score"));
+
+  features.put("sentiment_string", SentenceAnn.getFeatures().get("sentiment_string"));
+ // features.put("emotion", SentenceAnn.getFeatures().get("emotion"));
+ 
+ 
+  outputAS.add(ConsequentAS.firstNode(), ConsequentAS.lastNode(), "ConsequentSentiment", features);
+} 
+
+
+Rule: ConsequentSentimentNegative
+Priority: 1000
+(
+ {Consequent within ConditionalSentiment, Consequent.verbPolarity == neg}
+):tag
+-->
+
+{
+  AnnotationSet ConsequentAS = (AnnotationSet) bindings.get("tag");
+  gate.Annotation ConsequentAnn = (gate.Annotation) ConsequentAS.iterator().next();
+
+//AnnotationSet SentimentAS = inputAS.get("ConditionalSentiment", ConsequentAS.firstNode().getOffset(), ConsequentAS.lastNode().getOffset());
+  //gate.Annotation SentimentAnn = (gate.Annotation) SentimentAS.iterator().next();
+
+  FeatureMap features = Factory.newFeatureMap();
+  
+  features.put("rule", "ConsequentSentimentNegative");
+  features.put("polarity", "negative");
+ 
+ // features.putAll(ConsequentAnn.getFeatures()); 
+
+
+ AnnotationSet SentenceSet = gate.Utils.getCoveringAnnotations(inputAS, ConsequentAnn, "ConditionalSentiment");
+ gate.Annotation SentenceAnn = (gate.Annotation) SentenceSet.iterator().next();
+ 
+  features.put("sentiment_string", SentenceAnn.getFeatures().get("sentiment_string"));
+ 
+ 
+ float score = Float.parseFloat(SentenceAnn.getFeatures().get("score").toString());
+ features.put("score",  - score);
+
+  outputAS.add(ConsequentAS.firstNode(), ConsequentAS.lastNode(), "ConsequentSentiment", features);
+} 

@@ -1,0 +1,125 @@
+Phase:	AddFeaturestoSentence
+Input: Sentence
+Options: control = brill
+
+/*check if a Sentence contains an Imperative annotation and if so, add a feature on the Sentence annotation */
+
+
+
+
+Rule: DirectiveSentence
+(
+{Sentence contains Directive, !Sentence contains ConditionalObligation}
+):tag
+-->
+{
+  AnnotationSet SentenceAS = (AnnotationSet) bindings.get("tag");
+  gate.Annotation SentenceAnn =  (gate.Annotation) SentenceAS.iterator().next();
+  AnnotationSet DirectiveAS = inputAS.get("Directive", SentenceAS.firstNode().getOffset(), SentenceAS.lastNode().getOffset());
+  gate.Annotation DirectiveAnn =  (gate.Annotation) DirectiveAS.iterator().next();
+ 
+String category = (String)DirectiveAnn.getFeatures().get("negation");
+    if(category != null) 
+ {
+	SentenceAnn.getFeatures().put("kind", "negative");
+  }
+
+   FeatureMap features = Factory.newFeatureMap();
+SentenceAnn.getFeatures().put("directive", DirectiveAnn.getFeatures().get("kind"));
+ }
+
+
+ Rule: SentimentSentence
+(
+  {Sentence contains SentenceSentiment, !Sentence contains ConditionalObligation}
+  ):tag
+  -->
+  {
+  AnnotationSet SentenceAS = (AnnotationSet) bindings.get("tag");
+  gate.Annotation SentenceAnn =  (gate.Annotation) SentenceAS.iterator().next();
+  AnnotationSet SentimentAS = inputAS.get("SentenceSentiment", SentenceAS.firstNode().getOffset(), SentenceAS.lastNode().getOffset());
+  gate.Annotation SentimentAnn =  (gate.Annotation) SentimentAS.iterator().next();
+ 
+   FeatureMap features = Factory.newFeatureMap();
+  SentenceAnn.getFeatures().put("sentiment", SentimentAnn.getFeatures().get("polarity")); 
+  SentenceAnn.getFeatures().put("emotion", SentimentAnn.getFeatures().get("emotion")); 
+ }
+
+ Rule: ConditionalSentence
+ (
+ {Sentence contains Conditional}
+ ):tag
+ -->
+ {
+  AnnotationSet SentenceAS = (AnnotationSet) bindings.get("tag");
+  gate.Annotation SentenceAnn =  (gate.Annotation) SentenceAS.iterator().next();
+ 
+   FeatureMap features = Factory.newFeatureMap();
+  SentenceAnn.getFeatures().put("conditional", "yes");
+ }
+
+Rule: SentenceContainsQuestion
+(
+ {Sentence contains Question}
+ ):tag
+ -->
+ {
+  AnnotationSet SentenceAS = (AnnotationSet) bindings.get("tag");
+  gate.Annotation SentenceAnn =  (gate.Annotation) SentenceAS.iterator().next();
+  
+  AnnotationSet QuestionAS = inputAS.get("Question", SentenceAS.firstNode().getOffset(), SentenceAS.lastNode().getOffset());
+  gate.Annotation QuestionAnn =  (gate.Annotation) QuestionAS.iterator().next();
+ 
+ 
+   FeatureMap features = Factory.newFeatureMap();
+   SentenceAnn.getFeatures().put("question", "direct");
+   
+   String category = (String)QuestionAnn.getFeatures().get("kind");
+    if(category != null) 
+	{ 
+  	 SentenceAnn.getFeatures().put("kind", QuestionAnn.getFeatures().get("kind"));
+	}
+	else 
+	SentenceAnn.getFeatures().put("kind", "general-question");
+}
+
+
+Rule: InvitationSentence
+ (
+ {Sentence contains Invitation}
+ ):tag
+ -->
+ {
+  AnnotationSet SentenceAS = (AnnotationSet) bindings.get("tag");
+  gate.Annotation SentenceAnn =  (gate.Annotation) SentenceAS.iterator().next();
+ 
+   FeatureMap features = Factory.newFeatureMap();
+  SentenceAnn.getFeatures().put("kind", "invitation");
+ }
+ 
+ Rule: FirstPersonSentence
+ (
+  {Sentence contains FirstPersonPronoun}
+  ):tag
+  -->
+  {
+  AnnotationSet SentenceAS = (AnnotationSet) bindings.get("tag");
+  gate.Annotation SentenceAnn =  (gate.Annotation) SentenceAS.iterator().next();
+ 
+   FeatureMap features = Factory.newFeatureMap();
+  SentenceAnn.getFeatures().put("firstPerson", "yes");
+ }
+ 
+ Rule: SecondPersonSentence
+ (
+  {Sentence contains SecondPersonPronoun}
+  ):tag
+  -->
+  {
+  AnnotationSet SentenceAS = (AnnotationSet) bindings.get("tag");
+  gate.Annotation SentenceAnn =  (gate.Annotation) SentenceAS.iterator().next();
+ 
+   FeatureMap features = Factory.newFeatureMap();
+  SentenceAnn.getFeatures().put("secondPerson", "yes");
+ }
+ 

@@ -1,0 +1,24 @@
+MultiPhase:	TestTheGrammars
+Phases: 
+
+sentence_set
+process_postags
+//entity
+hashtag
+sarcasm_indicator
+remove_lookups
+question_mark
+question
+sentiment_lookup
+sentiment_phrase
+sentiment_modifier
+sentiment_negative
+emotions_negative
+sentiment_sarcasm
+opinion-holder/RTHolder
+opinion-holder/RemoveEntityFromHolder
+//sentiment_target_general
+sentiment_target
+consequent_sentiment
+sentiment_sentence
+sentiment_holder

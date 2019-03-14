@@ -1,0 +1,13 @@
+Phase:	ConditionalIndicator
+Input: Lookup
+Options: control = appelt
+
+Rule: LookupIndicator
+// find words indicating a conditional
+
+(
+ {Lookup.majorType == conditional}
+):tag
+-->
+:tag.ConditionalIndicator = {}
+

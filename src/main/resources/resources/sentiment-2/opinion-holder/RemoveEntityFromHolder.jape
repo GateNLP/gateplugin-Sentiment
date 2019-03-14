@@ -1,0 +1,19 @@
+Phase: RemoveEntityFromHolder
+Input: Holder
+Options: control = appelt
+
+/* If a potential Opinion Holder contains a CandidateTarget, remove the CandidateTarget annotation so that it doesn't get recognised as a potential Opinion Target
+*/
+
+
+Rule: RemoveEntity
+Priority: 100
+(
+ {Holder}
+):tag
+-->
+:tag{
+  AnnotationSet entitySet = gate.Utils.getOverlappingAnnotations(inputAS, tagAnnots, "CandidateTarget");
+  inputAS.removeAll(entitySet);
+}
+ 

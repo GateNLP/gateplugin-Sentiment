@@ -1,0 +1,7 @@
+go_bad_phrases.lst:sentiment:bad:phrase
+go_well_phrases.lst:sentiment:good:phrase
+positive-phrases.lst:sentiment:good:phrase
+bad_phrases.lst:sentiment:bad:phrase
+sarcasm-indicator.lst:sentiment:sarcasm:indicator
+no-sentiment-phrases.lst:no-sentiment
+swear.lst:sentiment:bad:phrase

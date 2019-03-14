@@ -1,0 +1,8 @@
+MultiPhase:	TestTheGrammars
+Phases: 
+pre-processing
+modality
+question-directive
+wh-question
+//remove-features
+add-features-to-sentence

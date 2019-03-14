@@ -1,0 +1,42 @@
+Phase: ProcessPosTags
+Input: Token Lookup
+Options: control = all
+
+Rule: CNoun
+( 
+{Token.category == NN}|
+{Token.category == NNS}
+):tag
+-->
+:tag.CNoun ={}
+ 
+Rule: Adverb
+
+(
+ {Token.category == ADV}|
+ {Token.category == RB}
+):tag
+-->
+:tag.Adverb = {}
+
+Rule: Not
+Priority: 200
+( 
+ {Lookup.majorType == negative}
+):tag
+-->
+:tag.Not = {}
+
+Rule: Punctuation
+(
+ {Token.kind == punctuation}
+ ):tag
+ -->
+ :tag.Punctuation = {}
+
+/**
+ * These rules aim to remove Lookups when their category spec does not 
+ * fit with any of the actual Tokens they cover.
+ */
+
+

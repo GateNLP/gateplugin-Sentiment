@@ -1,0 +1,28 @@
+Imports: {
+  import static gate.Utils.*;
+}
+
+Phase:  Preprocess
+Input: Sentence QuestionMark
+Options: control = appelt
+
+Rule: Question
+(
+ {Sentence}
+):question
+-->
+:question{
+  Set<String> types = new HashSet<String>();
+  types.add("Token");
+  types.add("QuestionMark"); 
+  AnnotationSet containeds = getContainedAnnotations(inputAS,questionAnnots).get(types);
+  AnnotationSet qmarks = getContainedAnnotations(inputAS,questionAnnots,"QuestionMark");
+  if(qmarks.size()==0) return;
+  Annotation qmark = qmarks.inDocumentOrder().get(qmarks.size()-1);
+  List<Annotation> annList = containeds.inDocumentOrder();
+  int qmarkIndex = annList.indexOf(qmark);
+  if(qmarkIndex > annList.size()-5) {
+    addAnn(outputAS,questionAnnots,"Question",featureMap("rule","Question"));
+    // do the things to do if we have a question here
+  }
+}

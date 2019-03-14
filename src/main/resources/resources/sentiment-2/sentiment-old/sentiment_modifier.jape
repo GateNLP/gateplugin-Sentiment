@@ -1,0 +1,205 @@
+Phase: SentimentModifier
+Input: SentiWSLookupHigh Token Adverb Swear Not Lookup CNoun Entity
+Options: control = appelt
+
+
+/* double the score if there's an adverb or swear word adjective 
+preceding the sentiment adjective */
+
+/* Note that really what we need to is have different strengths of adverb
+and use this score as the multiplication factor */
+
+Rule: NotAdverbSentiment
+Priority: 1000
+/* Use this to prevent words like "no" getting recognised as regular adverbs */
+
+(
+ ({Not})
+ ({SentiWSLookupHigh}):senti
+):tag
+-->
+:tag.NotAdverbSentiment = {}
+
+
+Rule: DoubleAdverbSentiment
+Priority: 750
+
+/* if the sentiment word or adverb is capitalised, double the score twice*/
+(
+ ({Adverb, Token.orth == allCaps}|
+  {Swear.category == "adjective", Token.orth == allCaps}|
+ {Lookup.majorType == sentiment, Lookup.minorType == intensifier, Token.orth == allCaps})
+  ({SentiWSLookupHigh}):senti
+):tag
+-->
+{
+gate.AnnotationSet tagSet = (gate.AnnotationSet)bindings.get("tag");
+gate.Annotation tagAnn = (gate.Annotation)tagSet.iterator().next();
+
+gate.AnnotationSet sentiSet = (gate.AnnotationSet)bindings.get("senti");
+gate.Annotation sentiAnn = (gate.Annotation)sentiSet.iterator().next();
+
+FeatureMap features = Factory.newFeatureMap();
+
+features.put("polarity", sentiAnn.getFeatures().get("polarity"));
+features.put("emotion", sentiAnn.getFeatures().get("emotion"));
+features.put("rule", "DoubleAdverbSentiment");
+
+float score = Float.parseFloat(sentiAnn.getFeatures().get("score").toString());
+float newScore = score * 4;
+
+features.put("score", newScore);
+
+ inputAS.remove(sentiAnn);
+
+outputAS.add(tagSet.firstNode(), tagSet.lastNode(), "SentiWSLookupHigh",
+ features);
+}
+
+Rule: AdverbDoubleSentiment
+Priority: 750
+
+/* if the sentiment word preceded by a modifier is capitalised, double the score twice*/
+(
+ ({Adverb}|
+ {Swear.category == "adjective"}|
+ {Lookup.majorType == sentiment, Lookup.minorType == intensifier})
+  ({SentiWSLookupHigh, Token.orth == allCaps}):senti
+):tag
+-->
+{
+gate.AnnotationSet tagSet = (gate.AnnotationSet)bindings.get("tag");
+gate.Annotation tagAnn = (gate.Annotation)tagSet.iterator().next();
+
+gate.AnnotationSet sentiSet = (gate.AnnotationSet)bindings.get("senti").get("SentiWSLookupHigh");
+gate.Annotation sentiAnn = (gate.Annotation)sentiSet.iterator().next();
+
+FeatureMap features = Factory.newFeatureMap();
+
+features.put("polarity", sentiAnn.getFeatures().get("polarity"));
+features.put("emotion", sentiAnn.getFeatures().get("emotion"));
+
+features.put("rule", "DoubleAdverbSentiment");
+
+float score = Float.parseFloat(sentiAnn.getFeatures().get("score").toString());
+float newScore = score * 4;
+
+features.put("score", newScore);
+
+ inputAS.remove(sentiAnn);
+
+outputAS.add(tagSet.firstNode(), tagSet.lastNode(), "SentiWSLookupHigh",
+ features);
+}
+
+Rule: AdverbSentiment
+Priority: 500
+(
+ ({Adverb}|
+ {Swear.category == "adjective"}|
+ {Lookup.majorType == sentiment, Lookup.minorType == intensifier})
+ ({SentiWSLookupHigh}):senti
+):tag
+-->
+{
+
+gate.AnnotationSet tagSet = (gate.AnnotationSet)bindings.get("tag");
+gate.Annotation tagAnn = (gate.Annotation)tagSet.iterator().next();
+
+gate.AnnotationSet sentiSet = (gate.AnnotationSet)bindings.get("senti");
+gate.Annotation sentiAnn = (gate.Annotation)sentiSet.iterator().next();
+
+FeatureMap features = Factory.newFeatureMap();
+
+features.put("polarity", sentiAnn.getFeatures().get("polarity"));
+features.put("rule", "AdverbSentiment");
+features.put("emotion", sentiAnn.getFeatures().get("emotion"));
+
+
+float score = Float.parseFloat(sentiAnn.getFeatures().get("score").toString());
+float newScore = score * 2;
+
+features.put("score", newScore);
+
+ inputAS.remove(sentiAnn);
+
+outputAS.add(tagSet.firstNode(), tagSet.lastNode(), "SentiWSLookupHigh",
+ features);
+}
+
+Rule: DoubleSentiment
+Priority: 200
+ (
+  {SentiWSLookupHigh contains {Token.orth == allCaps}}
+ ):senti
+-->
+{
+gate.AnnotationSet sentiSet = (gate.AnnotationSet)bindings.get("senti");
+gate.Annotation sentiAnn = (gate.Annotation)sentiSet.iterator().next();
+
+FeatureMap features = Factory.newFeatureMap();
+
+features.put("polarity", sentiAnn.getFeatures().get("polarity"));
+features.put("emotion", sentiAnn.getFeatures().get("emotion"));
+features.put("rule", "DoubleSentiment");
+
+float score = Float.parseFloat(sentiAnn.getFeatures().get("score").toString());
+float newScore = score * 2;
+
+features.put("score", newScore);
+
+ inputAS.remove(sentiAnn);
+
+outputAS.add(sentiSet.firstNode(), sentiSet.lastNode(), "SentiWSLookupHigh",
+ features);
+}
+
+
+Rule: IntensifierSentimentNoun
+Priority: 50
+// double the score if there's an intensifying adjective in front of a sentiment noun 
+(
+ {Lookup.majorType == sentiment, Lookup.minorType == intensifier}
+ ({SentiWSLookupHigh, CNoun }):senti
+ ):tag
+ -->
+ {
+
+gate.AnnotationSet tagSet = (gate.AnnotationSet)bindings.get("tag");
+gate.Annotation tagAnn = (gate.Annotation)tagSet.iterator().next();
+
+gate.AnnotationSet sentiSet = (gate.AnnotationSet)bindings.get("senti").get("SentiWSLookupHigh");
+gate.Annotation sentiAnn = (gate.Annotation)sentiSet.iterator().next();
+
+FeatureMap features = Factory.newFeatureMap();
+
+features.put("polarity", sentiAnn.getFeatures().get("polarity"));
+features.put("emotion", sentiAnn.getFeatures().get("emotion"));
+
+features.put("rule", "IntensifierSentimentNoun");
+
+float score = Float.parseFloat(sentiAnn.getFeatures().get("score").toString());
+float newScore = score * 2;
+
+features.put("score", newScore);
+
+ inputAS.remove(sentiAnn);
+
+outputAS.add(tagSet.firstNode(), tagSet.lastNode(), "SentiWSLookupHigh",
+ features);
+}
+
+
+Rule: SwearNoun
+/* If a swearing adjective occurs before an ordinary noun, and no other rules have applied, then make a negative sentiment annotation,  e.g. "arsing referee" */
+Priority: 50
+
+(
+ ({Swear.category == adjective}):tag
+ ({CNoun, !SentiWSLookupHigh}|
+  {Entity}
+ )
+)
+-->
+:tag.SentiWSLookupHigh = {polarity= negative,  emotion = swear, score = -0.5, rule="SwaerNoun"}
+

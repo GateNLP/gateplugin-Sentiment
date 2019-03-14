@@ -1,0 +1,67 @@
+Phase:	ConvertKeyReviews
+Input: comment
+Options: control = appelt
+
+Rule: Fivestar
+
+(
+ {comment.rating == "5_Star_Review"}
+):tag
+-->
+:tag.comment = {polarity = positive},
+{
+ gate.AnnotationSet temp = (gate.AnnotationSet)bindings.get("tag");
+ outputAS.removeAll(temp);
+}
+
+
+
+Rule: Fourstar
+
+(
+ {comment.rating == "4_Star_Review"}
+):tag
+-->
+:tag.comment = {polarity = positive},
+{
+ gate.AnnotationSet temp = (gate.AnnotationSet)bindings.get("tag");
+ outputAS.removeAll(temp);
+}
+
+Rule: Threestar
+
+(
+ {comment.rating == "3_Star_Review"}
+):tag
+-->
+:tag.comment = {polarity = neutral},
+{
+ gate.AnnotationSet temp = (gate.AnnotationSet)bindings.get("tag");
+ outputAS.removeAll(temp);
+}
+
+Rule: Twostar
+
+(
+ {comment.rating == "2_Star_Review"}
+):tag
+-->
+:tag.comment = {polarity = negative},
+{
+ gate.AnnotationSet temp = (gate.AnnotationSet)bindings.get("tag");
+ outputAS.removeAll(temp);
+}
+
+
+Rule: Onestar
+
+(
+ {comment.rating == "1_Star_Review"}
+):tag
+-->
+:tag.comment = {polarity = negative},
+{
+ gate.AnnotationSet temp = (gate.AnnotationSet)bindings.get("tag");
+ outputAS.removeAll(temp);
+}
+

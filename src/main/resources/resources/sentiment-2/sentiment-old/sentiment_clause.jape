@@ -1,0 +1,152 @@
+Phase: SentenceSentiment
+Input: Clause Sentiment SentiWSLookupHigh EntitySentiment SentenceSentiment Question Conditional
+Options: control = appelt
+
+
+
+Rule:NotSentimentClause
+Priority: 1000
+(
+ {Question}
+)
+-->
+{}
+
+
+Rule:ClauseEntitySentiment
+Priority: 500
+
+// If a clause contains an EntitySentiment, annotate that clause as ClauseSentiment 
+// and add the entity as a feature
+
+(
+ {Clause contains EntitySentiment}
+):tag
+-->
+
+{
+  AnnotationSet SentenceAS = (AnnotationSet) bindings.get("tag");
+ 
+  // get EntitySentiment info from within Sentence annotation
+  AnnotationSet SentiAS = inputAS.get("EntitySentiment", SentenceAS.firstNode().getOffset(), SentenceAS.lastNode().getOffset());
+  
+  gate.Annotation SentiAnn = (gate.Annotation) SentiAS.iterator().next();
+                     
+  FeatureMap features = Factory.newFeatureMap();
+  features.putAll(SentiAnn.getFeatures()); 
+  // putAll will include the entityURI feature
+
+  features.put("rule", "ClauseEntitySentiment");
+  
+  outputAS.add(SentenceAS.firstNode(), SentenceAS.lastNode(), "ClauseSentiment", features);
+}
+
+
+Rule:ClauseConsequentSentiment
+Priority: 800
+
+// If a clause contains a ConsequentSentiment, annotate that clause as ClauseSentiment 
+// and add the entity as a feature
+
+(
+ {Clause contains ConsequentSentiment}
+):tag
+-->
+
+{
+  AnnotationSet SentenceAS = (AnnotationSet) bindings.get("tag");
+ 
+ 
+  // get EntitySentiment info from within Sentence annotation
+  AnnotationSet SentiAS = inputAS.get("ConsequentSentiment", SentenceAS.firstNode().getOffset(), SentenceAS.lastNode().getOffset());
+  
+  gate.Annotation SentiAnn = (gate.Annotation) SentiAS.iterator().next();
+                     
+  FeatureMap features = Factory.newFeatureMap();
+  features.putAll(SentiAnn.getFeatures()); 
+  features.put("rule", "SentenceConsequentSentiment");
+  outputAS.add(SentenceAS.firstNode(), SentenceAS.lastNode(), "ClauseSentiment", features);
+}
+
+
+
+Rule: ClauseSentiment
+Priority: 300
+
+// If a clause contains a sentiment that's not already been used for an entity or event,
+// annotate that clause as ClauseSentiment
+
+(
+ {Clause contains Sentiment}
+):tag
+-->
+
+{
+  AnnotationSet SentenceAS = (AnnotationSet) bindings.get("tag");
+ 
+ 
+  // get SentiWS info from within Sentence annotation
+  AnnotationSet SentiAS = inputAS.get("Sentiment", SentenceAS.firstNode().getOffset(), SentenceAS.lastNode().getOffset());
+  
+  gate.Annotation SentiAnn = (gate.Annotation) SentiAS.iterator().next();
+
+  FeatureMap features = Factory.newFeatureMap();
+
+try{
+String content = doc.getContent().getContent(SentiAnn.getStartNode().getOffset(),
+                 SentiAnn.getEndNode().getOffset()).toString();
+
+  features.put("sentiment_string", content);
+        
+  features.putAll(SentiAnn.getFeatures()); 
+  features.put("sarcasm", "no");  // there won't be a sarcasm feature on a plain Sentiment annotation
+  features.put("rule", "ClauseSentiment");
+  outputAS.add(SentenceAS.firstNode(), SentenceAS.lastNode(), "ClauseSentiment", features);
+  }
+
+catch(InvalidOffsetException ioe){
+      //this should never happen
+      throw new GateRuntimeException(ioe);
+    } 
+}
+
+Rule: SentimentLookup
+Priority: 100
+
+(
+ {Clause contains SentiWSLookupHigh}
+):tag
+-->
+//:tag.ClauseSentiment = {rule="SentimentLookup"}
+
+{
+  AnnotationSet SentenceAS = (AnnotationSet) bindings.get("tag");
+ 
+ 
+  // get SentiWS info from within Sentence annotation
+  AnnotationSet SentiAS = inputAS.get("SentiWSLookupHigh", SentenceAS.firstNode().getOffset(), SentenceAS.lastNode().getOffset());
+  
+  gate.Annotation SentiAnn = (gate.Annotation) SentiAS.iterator().next();
+                     
+  FeatureMap features = Factory.newFeatureMap();
+
+try{
+String content = doc.getContent().getContent(SentiAnn.getStartNode().getOffset(),
+                 SentiAnn.getEndNode().getOffset()).toString();
+
+  features.put("sentiment_string", content);
+
+  features.putAll(SentiAnn.getFeatures()); 
+  features.put("rule", "SentimentLookup");
+  features.put("sarcasm", "no"); // there won't be a sarcasm feature on a plain SentiLookup annotation
+  outputAS.add(SentenceAS.firstNode(), SentenceAS.lastNode(), "ClauseSentiment", features);
+  }
+catch(InvalidOffsetException ioe){
+      //this should never happen
+      throw new GateRuntimeException(ioe);
+     } 
+}
+
+
+
+

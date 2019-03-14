@@ -1,0 +1,206 @@
+Phase: SentimentTarget
+Input: Sentiment Term Split Sentence Swear Conditional ClauseBreak RT Says Person CandidateTarget ChunkSentiment
+Options: control = appelt
+
+Rule: ChunkSentiment
+Priority: 1000
+/* If we've already added something as a ChunkSentiment from the previous grammar 
+sentiment_target_general.jape, we should not try to create any Sentiment annotation here */
+(
+ {ChunkSentiment}
+)
+-->
+{}
+
+
+Rule: ConditionalQuestion
+Priority: 1000
+/* If we find a conditional within a question, change the span of the annotation to cover
+ the whole sentence */
+
+(
+ {Conditional within Question}
+):tag
+-->
+:tag.Conditional = {kind = Question, rule = ConditionalQuestion, opinion_holder = :tag.Conditional.opinion_holder, polarity = :tag.Conditional.polarity, type = :tag.Conditional.type},
+{
+ gate.AnnotationSet temp = (gate.AnnotationSet)bindings.get("tag");
+ outputAS.removeAll(temp);
+}
+
+
+
+
+
+Rule: ConditionalSentiment
+Priority: 800
+
+/* looks for conditional sentences containing a sentiment, 
+   and adds the score of the sentiment to the conditional 
+   sentence, creating a new temp annotation ConditionalSentiment
+*/
+
+( 
+ {Conditional contains Sentiment}
+):tag
+-->
+
+{
+  AnnotationSet ConditionalAS = (AnnotationSet) bindings.get("tag");
+  FeatureMap features = Factory.newFeatureMap();
+
+  AnnotationSet SentimentAS = inputAS.get("Sentiment", ConditionalAS.firstNode().getOffset(), ConditionalAS.lastNode().getOffset());
+  gate.Annotation SentimentAnn = (gate.Annotation) SentimentAS.iterator().next();
+
+  features.put("rule", "ConditionalSentiment");
+  features.put("score", SentimentAnn.getFeatures().get("score"));
+  features.put("sarcasm", SentimentAnn.getFeatures().get("sarcasm"));
+  features.put("polarity", SentimentAnn.getFeatures().get("polarity"));
+  
+ try{
+String content = doc.getContent().getContent(SentimentAnn.getStartNode().getOffset(),
+                 SentimentAnn.getEndNode().getOffset()).toString();
+
+  features.put("sentiment_string", content);
+  outputAS.add(ConditionalAS.firstNode(), ConditionalAS.lastNode(), "ConditionalSentiment", features);
+  }
+  catch(InvalidOffsetException ioe)
+  {throw new GateRuntimeException(ioe);} 
+
+} 
+
+
+
+Rule:SentimentTarget
+Priority: 1000
+(
+ ({Sentiment}):sentiTag
+ ({CandidateTarget}):tag
+)
+-->
+
+{
+ gate.AnnotationSet tagAS = (gate.AnnotationSet)bindings.get("tag");
+ Annotation tagAnn = tagAS.iterator().next(); 
+ 
+ AnnotationSet sentiTagAS = (AnnotationSet) bindings.get("sentiTag");
+ gate.Annotation sentiTagAnn = (gate.Annotation) sentiTagAS.iterator().next();
+
+ FeatureMap features = Factory.newFeatureMap();
+
+try{
+
+String sentimentContent = doc.getContent().getContent(sentiTagAnn.getStartNode().getOffset(),
+                sentiTagAnn.getEndNode().getOffset()).toString();
+
+String targetContent = doc.getContent().getContent(tagAnn.getStartNode().getOffset(),
+                tagAnn.getEndNode().getOffset()).toString();
+
+features.put("polarity", sentiTagAnn.getFeatures().get("polarity"));
+features.put("score", sentiTagAnn.getFeatures().get("score"));
+features.put("sarcasm", sentiTagAnn.getFeatures().get("sarcasm"));
+features.put("rule", "SentimentTarget");
+features.put("emotion", sentiTagAnn.getFeatures().get("emotion"));
+features.put("sentiment_string", sentimentContent);
+features.put("target_string", targetContent);
+outputAS.add(tagAS.firstNode(), tagAS.lastNode(), "SentimentTarget", features);
+  }
+
+catch(InvalidOffsetException ioe){
+      throw new GateRuntimeException(ioe);
+    } 
+}
+
+
+Rule:TargetSentiment
+Priority: 1000
+(
+ ({CandidateTarget}):tag
+ ({CandidateTarget})*
+({Sentiment}):sentiTag
+)
+-->
+
+ {
+ gate.AnnotationSet tagAS = (gate.AnnotationSet)bindings.get("tag");
+ Annotation tagAnn = tagAS.iterator().next(); 
+
+ AnnotationSet sentiTagAS = (AnnotationSet) bindings.get("sentiTag");
+ gate.Annotation sentiTagAnn = (gate.Annotation) sentiTagAS.iterator().next();
+
+ FeatureMap features = Factory.newFeatureMap();
+
+try{
+
+String sentimentContent = doc.getContent().getContent(sentiTagAnn.getStartNode().getOffset(),
+                sentiTagAnn.getEndNode().getOffset()).toString();
+
+String targetContent = doc.getContent().getContent(tagAnn.getStartNode().getOffset(),
+                tagAnn.getEndNode().getOffset()).toString();
+
+features.put("polarity", sentiTagAnn.getFeatures().get("polarity"));
+features.put("score", sentiTagAnn.getFeatures().get("score"));
+features.put("sarcasm", sentiTagAnn.getFeatures().get("sarcasm"));
+features.put("rule", "TargetSentiment");
+features.put("emotion", sentiTagAnn.getFeatures().get("emotion"));
+features.put("sentiment_string", sentimentContent);
+features.put("target_string", targetContent);
+
+
+outputAS.add(tagAS.firstNode(), tagAS.lastNode(), "SentimentTarget", features);
+  }
+
+catch(InvalidOffsetException ioe){
+      throw new GateRuntimeException(ioe);
+    } 
+}
+
+
+
+
+ Rule:PersonsaysTargetSentiment
+ Priority: 500
+(
+({Person}):holder
+({Says})
+ ({CandidateTarget}):tag
+({Sentiment}):sentiTag
+)
+-->
+:tag.SentimentTarget = {polarity= :sentiTag.Sentiment.polarity, 
+                        score = :sentiTag.Sentiment.score, 
+                        sarcasm = :sentiTag.Sentiment.sarcasm,
+                        rule="PersonSaysTargetSentiment", 
+                        emotion = :sentiTag.Sentiment.emotion,
+                        sentiment_string = :sentiTag.Sentiment@cleanString, 
+                        target_string = :tag.CandidateTarget@cleanString,
+						holder = :holder.Person@cleanString
+                        },
+:holder.Holder = {username = :holder.Person@cleanString,
+		  rule ="PersonSaysTargetSentiment"}
+
+
+ Rule:PersonsaysSentimentTarget
+ Priority: 500
+(
+({Person}):holder
+({Says})
+({Sentiment}):sentiTag
+({CandidateTarget}):tag
+)
+-->
+:tag.SentimentTarget = {polarity= :sentiTag.Sentiment.polarity, 
+                        score = :sentiTag.Sentiment.score, 
+                        sarcasm = :sentiTag.Sentiment.sarcasm,
+                        rule="PersonSaysSentimentTarget", 
+                        emotion = :sentiTag.Sentiment.emotion,
+                        sentiment_string = :sentiTag.Sentiment@cleanString, 
+                        target_string = :tag.CandidateTarget@cleanString,
+						holder = :holder.Person@cleanString
+                        },
+:holder.Holder = {username = :holder.Person@cleanString,
+		  rule="PersonSaysSentimentTarget"}
+
+
+
+

@@ -1,0 +1,109 @@
+Phase: SentimentSarcasm
+Input: TempSentiment Sarcasm TweetSplit SarcasmIndicator
+Options: control = appelt
+
+
+Rule: SarcasmPositiveToNegative
+Priority: 500
+/* What a beautiful day. #not - positive + sarcasm hashtag -> negative
+   A sarcastic tweet now always gets an emotion value of sarcastic
+*/
+
+(
+ {TempSentiment.polarity == positive}
+ ):tag
+({Sarcasm})
+-->
+:tag {
+   Long start = tagAnnots.firstNode().getOffset();
+   Long end = tagAnnots.lastNode().getOffset();
+   
+   Annotation lookup = tagAnnots.get("TempSentiment").iterator().next();
+   float score = Float.parseFloat(lookup.getFeatures().get("score").toString());
+   
+   FeatureMap newf = Factory.newFeatureMap();
+   newf.put("polarity", "negative");
+   //newf.put("emotion", lookup.getFeatures().get("emotion"));
+   newf.put("emotion", "sarcasm");
+   newf.put("score", - score);	
+   newf.put("sarcasm", "yes");
+   newf.put("rule", "SarcasmPositiveToNegative");
+
+   try {
+      outputAS.add(start, end, "Sentiment", newf);
+   }
+   catch (InvalidOffsetException e) {
+      e.printStackTrace();
+   }
+ 
+}
+
+
+Rule: SarcasmNegativeToPositive
+Priority: 500
+
+/* I hate Mondays. #notreally Negative + sarcasm hashtag -> positive
+  A sarcastic tweet now always gets an emotion value of sarcastic
+*/
+
+(
+ {TempSentiment.polarity == negative}
+ ):tag
+({Sarcasm})
+-->
+:tag {
+   Long start = tagAnnots.firstNode().getOffset();
+   Long end = tagAnnots.lastNode().getOffset();
+   
+   Annotation lookup = tagAnnots.get("TempSentiment").iterator().next();
+   float score = Float.parseFloat(lookup.getFeatures().get("score").toString());
+   
+   FeatureMap newf = Factory.newFeatureMap();
+   newf.put("polarity", "positive");
+   newf.put("score", - score);	
+  // newf.put("emotion", lookup.getFeatures().get("emotion"));
+   newf.put("emotion", "sarcasm");
+   newf.put("sarcasm", "yes");
+   newf.put("rule", "SarcasmNegativeToPositive");
+
+   try {
+      outputAS.add(start, end, "Sentiment", newf);
+   }
+   catch (InvalidOffsetException e) {
+      e.printStackTrace();
+   }
+}
+
+
+Rule: SarcasmPosPlusNegIndicator
+Priority: 50
+// I'm ill again. #yay - negative phrase + positive hashtag = negative 
+
+(
+ {TempSentiment.polarity == negative}
+ ):tag
+({SarcasmIndicator.kind == positive})
+-->
+:tag.Sentiment = {polarity = :tag.TempSentiment.polarity, score = :tag.TempSentiment.score, sarcasm = "no", emotion = :tag.TempSentiment.emotion, rule2= :tag.TempSentiment.rule, rule = "SarcasmPosPlusNegIndicator", kind = :tag.TempSentiment.kind}
+
+
+Rule: SarcasmNegPlusPosIndicator
+Priority: 50
+// Having a fabulous holiday. #mylifesucks - positive phrase + negative hashtag = positive
+
+(
+ {TempSentiment.polarity == positive}
+ ):tag
+({SarcasmIndicator.kind == negative})
+-->
+:tag.Sentiment = {polarity = :tag.TempSentiment.polarity, score = :tag.TempSentiment.score, sarcasm = "no", emotion = :tag.TempSentiment.emotion, rule2= :tag.TempSentiment.rule, rule = "SarcasmNegPlusPosIndicator", kind = :tag.TempSentiment.kind}
+
+
+
+Rule: SentiNoChange
+Priority: 100
+(
+ {TempSentiment}
+):tag
+-->
+:tag.Sentiment = {polarity = :tag.TempSentiment.polarity, score = :tag.TempSentiment.score, sarcasm = "no", emotion = :tag.TempSentiment.emotion, rule= :tag.TempSentiment.rule, kind = :tag.TempSentiment.kind, rule2 = "SentiNoChange"}

@@ -1,0 +1,36 @@
+Phase: WhQuestion
+Input: Question
+Options: control = appelt
+
+
+Rule: WhQuestion
+Priority: 2000
+/* Why should I turn off the light? */
+
+(
+ {Question contains WhQuestionWord}
+ ):tag
+ -->
+ {
+  AnnotationSet tagAS = (AnnotationSet) bindings.get("tag");
+  gate.Annotation tagAnn =  (gate.Annotation) tagAS.iterator().next();
+
+ FeatureMap features = Factory.newFeatureMap();
+
+
+  // if no Invitation annotation, do nothing
+ 
+if (inputAS.get("Invitation", tagAnn.getStartNode().getOffset(),
+                      tagAnn.getEndNode().getOffset() ).isEmpty() ) 
+                      {}
+                                      
+// otherwise delete the Invitation annotation
+else{
+  AnnotationSet invitationAS = inputAS.get("Invitation", tagAS.firstNode().getOffset(), tagAS.lastNode().getOffset());
+outputAS.removeAll(invitationAS);
+}
+ tagAnn.getFeatures().put("kind", "wh-question");
+ 
+ 
+ 
+ }

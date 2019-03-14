@@ -1,0 +1,39 @@
+Phase: SentimentComment
+Input: SentenceSentiment
+Options: control = appelt
+
+
+
+Rule:SentenceSentimentInComment
+Priority: 1000
+
+// If a SentenceSentiment is found within a Comment section, add a feature about this
+// and add a feature stating which author wrote the comment
+
+(
+ {SentenceSentiment within CommentSection}
+):tag
+-->
+{
+  AnnotationSet SentenceSentimentAS = (AnnotationSet) bindings.get("tag");
+  gate.Annotation SentenceSentimentAnn = (gate.Annotation) SentenceSentimentAS.iterator().next();
+
+ AnnotationSet CommentSectionAS = inputAS.get("CommentSection", SentenceSentimentAS.firstNode().getOffset(), SentenceSentimentAS.lastNode().getOffset());
+  
+   gate.Annotation CommentSectionAnn = (gate.Annotation) CommentSectionAS.iterator().next();
+ 
+  
+  // add features
+  FeatureMap features = Factory.newFeatureMap();
+  features.putAll(SentenceSentimentAnn.getFeatures()); 
+  features.put("rule", "SentenceSentimentInComment");
+  features.put("kind", "Comment");
+  features.put("author", CommentSectionAnn.getFeatures().get("authorname"));
+  
+  outputAS.removeAll(SentenceSentimentAS);
+    
+  outputAS.add(SentenceSentimentAS.firstNode(), SentenceSentimentAS.lastNode(), "SentenceSentiment", features);
+
+}
+  
+

@@ -1,0 +1,21 @@
+MultiPhase:	TestTheGrammars
+Phases: 
+
+sentence_set
+process_postags
+hashtag
+sarcasm_indicator
+//remove_lookups
+question_mark
+question
+sentiment_emotion_affect
+sentiment_modifier
+sentiment_negative
+emotions_negative
+sentiment_sarcasm
+sentiment_target_short
+consequent_sentiment
+sentiment_sentence
+sentiment_clause
+sentiment_event
+sentiment_in_comment

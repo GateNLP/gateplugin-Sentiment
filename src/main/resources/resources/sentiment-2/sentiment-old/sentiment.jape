@@ -1,0 +1,40 @@
+Phase: SentiWSLookup
+Input: Lookup
+Options: control = appelt
+
+
+
+Rule: LookupAdjPosHighScore
+Priority: 500
+(
+ {Lookup.majorType == sentiment, Lookup.score >= 3.0 }
+):tag
+-->
+:tag.SentiWSLookupHigh = {polarity= :tag.Lookup.minorType, score = :tag.Lookup.score, rule="LookupPosHighScore"}
+
+
+Rule: LookupAdjNegHighScore
+Priority: 500
+(
+ {Lookup.majorType == sentiment, Lookup.score <= -3.0 }
+):tag
+-->
+:tag.SentiWSLookupHigh = {polarity= :tag.Lookup.minorType, score = :tag.Lookup.score, rule="LookupNegHighScore"}
+
+
+// Must be between -3 and  +3 now
+Rule: LookupAdjLowScore
+Priority: 200
+(
+ {Lookup.majorType == sentiment, Lookup.pos ==}
+):tag
+-->
+:tag.SentiWSLookupLow = {polarity= :tag.Lookup.minorType, score = :tag.Lookup.score, rule="LookupLowScore"}
+
+
+Rule: LookupOther
+(
+ {Lookup.majorType == sentiment}
+):tag
+-->
+:tag.SentiWSLookupOther = {polarity= :tag.Lookup.minorType, score = :tag.Lookup.score, rule="LookupOther"}

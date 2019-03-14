@@ -1,0 +1,88 @@
+Phase: ProcessPosTags
+Input: Token Lookup NounChunk URL Date
+Options: control = all
+
+Rule: NPChunker
+// NounChunks should not contain URLs //
+
+(
+ {NounChunk contains URL}|
+ {NounChunk contains Date}
+):tag
+-->
+:tag
+{
+  gate.AnnotationSet tagSet = (gate.AnnotationSet)bindings.get("tag");
+  //gate.Annotation tagAnn = (gate.Annotation)tagSet.iterator().next();
+
+  inputAS.removeAll(tagSet);
+}
+
+Rule: NounChunkCombine
+// NP of NP should be one single NounChunk, e.g. "ten pints of blood"
+// Note this isn't foolproof, but NP Prep NP is a bit too dangerous
+// You really need full parsing here, but there are other problems with that
+
+(
+ {NounChunk}
+ {Token.string == "of"}
+ {NounChunk}
+ ):tag
+ -->
+ :tag
+{
+  gate.AnnotationSet tagSet = (gate.AnnotationSet)bindings.get("tag");
+  inputAS.removeAll(tagSet);
+  FeatureMap features = Factory.newFeatureMap();
+  features.put("rule", "NounChunkCombine");
+  outputAS.add(tagSet.firstNode(), tagSet.lastNode(), "NounChunk",
+ features);
+}
+
+
+Rule: CNoun
+( 
+{Token.category == NN}|
+{Token.category == NNS}
+):tag
+-->
+:tag.CNoun ={}
+
+Rule: Adjective
+(
+ {Token.category == JJ}|
+ {Token.category == VBD}
+):tag
+-->
+:tag.Adjective = {}
+ 
+Rule: Adverb
+
+(
+ {Token.category == ADV}|
+ {Token.category == RB}
+):tag
+-->
+:tag.Adverb = {}
+
+Rule: Not
+Priority: 200
+( 
+ {Lookup.majorType == negative}
+):tag
+-->
+:tag.Not = {}
+
+Rule: Punctuation
+(
+ {Token.kind == punctuation}
+ ):tag
+ -->
+ :tag.Punctuation = {}
+
+/**
+ * These rules aim to remove Lookups when their category spec does not 
+ * fit with any of the actual Tokens they cover.
+ */
+
+

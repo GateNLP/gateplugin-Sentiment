@@ -1,0 +1,25 @@
+Phase: QuestionDirective
+Input: Question
+Options: control = appelt
+
+
+Rule: DirectiveQuestion
+Priority: 2000
+/* Should I turn off the light? */
+
+(
+ {Question contains Directive}
+ ):tag
+ -->
+ 
+  {
+  AnnotationSet tagAS = (AnnotationSet) bindings.get("tag");
+  gate.Annotation tagAnn =  (gate.Annotation) tagAS.iterator().next();
+  
+  AnnotationSet DirectiveAS = inputAS.get("Directive", tagAS.firstNode().getOffset(), tagAS.lastNode().getOffset());
+   
+ FeatureMap features = Factory.newFeatureMap();
+ tagAnn.getFeatures().put("kind", "directive-question");
+ 
+ inputAS.removeAll(DirectiveAS);
+ }

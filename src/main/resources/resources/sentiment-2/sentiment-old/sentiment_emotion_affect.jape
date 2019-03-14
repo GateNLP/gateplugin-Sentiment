@@ -1,0 +1,62 @@
+Phase: SentiWSLookup
+Input: Lookup
+Options: control = appelt
+
+/* joy = positive, surprise = nothing, all the rest are negative */
+
+
+Rule:LookupStopList
+Priority: 1000
+( 
+ {Lookup.majorType == stop}
+ ):tag
+ -->
+:tag.Stop = {}
+
+Rule: LookupPosHighScore
+Priority: 500
+(
+ {Lookup.majorType == sentiment, Lookup.minorType == joy }|
+ {Lookup.majorType == sentiment, Lookup.minorType == good }|
+ {Lookup.majorType == sentiment, Lookup.minorType == cute }|
+ {Lookup.majorType == sentiment, Lookup.minorType == happy }
+):tag
+-->
+:tag.SentiWSLookupHigh = {polarity= positive, score = 0.5, rule="LookupPosHighScore"}
+
+
+Rule: LookupSwearAdjective
+Priority: 300
+(
+ {Lookup.majorType == swear, Lookup.minorType == adjective}
+):tag
+-->
+:tag.Swear = {category = :tag.Lookup.minorType}
+
+Rule: LookupSwear
+Priority: 250
+(
+ {Lookup.majorType == swear, Lookup.minorType == noun}
+):tag
+-->
+:tag.SentiWSLookupHigh = {polarity= negative, score = -0.75, kind = "swear", rule="LookupNegHighScore"}
+ 
+
+Rule: LookupNegHighScore
+Priority: 10
+(
+ {Lookup.majorType == sentiment}
+):tag
+-->
+:tag.SentiWSLookupHigh = {polarity= negative, score = -0.5, rule="LookupNegHighScore"}
+
+Rule: LookupNegNoun
+Priority: 10
+(
+ {Lookup.majorType == no}
+ {Lookup.majorType == sentiment, Lookup.category == noun}
+):tag
+-->
+:tag.SentiWSLookupHigh = {polarity= negative, score = -0.5, rule="LookupNegNoun"}
+
+

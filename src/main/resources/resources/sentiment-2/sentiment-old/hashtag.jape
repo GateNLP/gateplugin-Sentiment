@@ -1,0 +1,37 @@
+Phase: Hashtag
+Input: Hashtag Lookup Split
+Options: control = appelt
+
+
+
+Rule: HashtagSarcasn
+Priority: 1000
+
+// e.g. #sarcasm, #notreally
+
+(
+ {Hashtag, Lookup.majorType == hashtag, Lookup.minorType == sarcasm}
+):tag
+-->
+:tag.Sarcasm = {rule = "HashtagSarcasm"}
+
+Rule: HashtagPositiveSarcasm
+Priority: 500
+// e.g. #yay, #great
+
+(
+ {Hashtag, Lookup.majorType == hashtag, Lookup.minorType == positive-sarcasm}
+):tag
+-->
+:tag.SarcasmIndicator = {kind = "positive", rule = "HashtagPositiveSarcasm"}
+
+
+Rule: HashtagNegativeSarcasm
+Priority: 500
+// e.g. #howterrible, #ihatemylife
+
+(
+ {Hashtag, Lookup.majorType == hashtag, Lookup.minorType == negative-sarcasm}
+):tag
+-->
+:tag.SarcasmIndicator = {kind = "negative", rule = "HashtagNegativeSarcasm"}

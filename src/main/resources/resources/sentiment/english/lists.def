@@ -1,0 +1,13 @@
+smiley_cheeky.lst:sentiment:cheeky
+go_bad_phrases.lst:sentiment:bad:phrase
+go_well_phrases.lst:sentiment:good:phrase
+swear_adj.lst:swear:adjective
+positive.lst:sentiment:good
+positive-phrases.lst:sentiment:good:phrase
+negative.lst:sentiment:bad
+bad_phrases.lst:sentiment:bad:phrase
+swear_nouns.lst:sentiment:bad:noun
+sarcasm-indicator.lst:sentiment:sarcasm:indicator
+sarcasm-adverb.lst:adverb:sarcasm:indicator
+vote.lst:vote:good::VoteLookup
+adjective-intensifier.lst:sentiment:intensifier

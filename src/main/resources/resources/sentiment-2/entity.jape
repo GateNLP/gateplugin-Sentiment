@@ -1,0 +1,13 @@
+Phase: Entity
+Input: MultiWord Person Organization Location SelectedToken
+Options: control = appelt
+
+/* converts all the POS tag features into their own annotation type */
+
+Rule: CreateEntity
+({MultiWord} | {Person} | {Organization} | {Location} | {SelectedToken}):tag
+-->
+:tag.Entity = {kind = :tag.Token.category}
+
+
+

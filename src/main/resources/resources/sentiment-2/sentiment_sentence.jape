@@ -1,0 +1,147 @@
+Phase: SentenceSentiment
+Input: Sentence Sentiment SentiWSLookupHigh SentimentTarget SentenceSentiment Question Conditional
+Options: control = appelt
+
+
+
+Rule:NotSentimentSentence
+Priority: 1000
+(
+ {Question}
+)
+-->
+{}
+
+
+Rule:SentenceSentimentTarget
+Priority: 500
+
+// If a sentence contains a SentimentTarget, annotate that sentence as SentenceSentiment 
+// and add the entity as a feature
+
+(
+ {Sentence contains SentimentTarget}
+):tag
+-->
+
+{
+      AnnotationSet SentenceAS = (AnnotationSet) bindings.get("tag");
+
+      // get EntitySentiment info from within Sentence annotation
+      AnnotationSet SentiAS = inputAS.get("SentimentTarget", SentenceAS.firstNode().getOffset(), SentenceAS.lastNode().getOffset());
+
+      gate.Annotation SentiAnn = (gate.Annotation) SentiAS.iterator().next();
+
+      FeatureMap features = Factory.newFeatureMap();
+      features.putAll(SentiAnn.getFeatures());
+
+      // putAll will include the entityURI feature
+      features.put("rule2", "SentenceSentimentTarget");
+      
+      // some clever stuff to deal with multiple topics and sentiments 
+
+      AnnotationSet sentenceAS = outputAS.get("Sentence", SentenceAS.firstNode().getOffset(), SentenceAS.lastNode().getOffset());
+      Annotation sentenceAnnotation = sentenceAS.iterator().next();
+      List<Annotation> topicAS = inputAS.get("Topic", SentenceAS.firstNode().getOffset(), SentenceAS.lastNode().getOffset()).inDocumentOrder();
+      //System.out.println(topicAS);
+      if (topicAS.size() > 1) {
+          FeatureMap sentenceFeatures = sentenceAnnotation.getFeatures();
+          //System.out.println("sentenceFeatures: " + sentenceFeatures);
+          String sortedByLocation = (String) sentenceFeatures.get("sortedByLocation");
+          String samePolarityType = (String) sentenceFeatures.get("samePolarity");
+          //System.out.println("sortedByLocation: " + sortedByLocation);
+          //System.out.println("samePolarityType: " + samePolarityType);
+          // check that we have a situation when polarity and topics are properly structured
+          if (sortedByLocation != null && samePolarityType != null) {
+              if (sortedByLocation.equals("yes") && samePolarityType.equals("yes")) {
+                  // we have a situation like: Topic1 w1 w2 Topic2 w3 w4 Sentiment w5..
+                  for (Annotation topic : topicAS) {
+                      // for every topic it's necessary to create own sentence sentiment
+                      FeatureMap featureMap = Factory.newFeatureMap();
+                      featureMap.putAll(features);
+                      // update topic values
+                      String targetString = gate.Utils.stringFor(doc, topic);
+                      featureMap.put("target_string", targetString);
+                      String targetTopic = (String) topic.getFeatures().get("minorType");
+                      featureMap.put("target_topic", targetTopic);
+                      outputAS.add(SentenceAS.firstNode(), SentenceAS.lastNode(), "SentenceSentiment", featureMap);
+                  }
+              }
+          }
+      } else {
+          // only one topic in sentence. Standard annotation should be created
+          outputAS.add(SentenceAS.firstNode(), SentenceAS.lastNode(), "SentenceSentiment", features);
+      }
+}
+
+
+
+
+Rule:SentenceConsequentSentiment
+Priority: 800
+
+// If a sentence contains a ConsequentSentiment, annotate that sentence as SentenceSentiment 
+// and add the entity as a feature
+
+(
+ {Sentence contains ConsequentSentiment}
+):tag
+-->
+
+{
+  AnnotationSet SentenceAS = (AnnotationSet) bindings.get("tag");
+ 
+ 
+  // get EntitySentiment info from within Sentence annotation
+  AnnotationSet SentiAS = inputAS.get("ConsequentSentiment", SentenceAS.firstNode().getOffset(), SentenceAS.lastNode().getOffset());
+  
+  gate.Annotation SentiAnn = (gate.Annotation) SentiAS.iterator().next();
+                     
+  FeatureMap features = Factory.newFeatureMap();
+  features.putAll(SentiAnn.getFeatures()); 
+  features.put("rule2", "SentenceConsequentSentiment");
+  outputAS.add(SentenceAS.firstNode(), SentenceAS.lastNode(), "SentenceSentiment", features);
+}
+
+
+Rule: SentenceSentiment
+Priority: 300
+
+// If a sentence contains a sentiment that's not already been used for an entity or event,
+// annotate that sentence as SentenceSentiment
+
+(
+ {Sentence contains Sentiment}
+):tag
+-->
+
+{
+  AnnotationSet SentenceAS = (AnnotationSet) bindings.get("tag");
+ 
+ 
+  // get SentiWS info from within Sentence annotation
+  AnnotationSet SentiAS = inputAS.get("Sentiment", SentenceAS.firstNode().getOffset(), SentenceAS.lastNode().getOffset());
+  
+  gate.Annotation SentiAnn = (gate.Annotation) SentiAS.iterator().next();
+
+  FeatureMap features = Factory.newFeatureMap();
+
+try{
+String content = doc.getContent().getContent(SentiAnn.getStartNode().getOffset(),
+                 SentiAnn.getEndNode().getOffset()).toString();
+
+  features.put("sentiment_string", content);
+        
+  features.putAll(SentiAnn.getFeatures()); 
+  features.put("rule", "SentenceSentiment");
+  outputAS.add(SentenceAS.firstNode(), SentenceAS.lastNode(), "SentenceSentiment", features);
+  }
+
+catch(InvalidOffsetException ioe){
+      //this should never happen
+      throw new GateRuntimeException(ioe);
+    } 
+}
+
+
+

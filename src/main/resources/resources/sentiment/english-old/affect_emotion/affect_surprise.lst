@@ -1,0 +1,73 @@
+admiration	category=noun
+amaze	category=verb
+amazed	category=adjective
+amazement	category=noun
+amazing	category=adjective	score=0.5
+amazingly	category=adverb
+astonish	category=verb
+astonished	category=adjective
+astonishing	category=adjective
+astonishingly	category=adverb
+astonishment	category=noun
+astound	category=verb
+astounded	category=adjective
+astounding	category=adjective	score=0.5
+awe	category=noun
+awe	category=verb
+awed	category=adjective
+awestricken	category=adjective
+awestruck	category=adjective
+awful	category=adjective	score=-0.5
+baffle	category=verb
+besot	category=verb
+bewilder	category=verb
+dazed	category=adjective
+dumbfound	category=verb
+dumbfounded	category=adjective
+dumfounded	category=adjective
+fantastic	category=adjective	score=0.5
+flabbergasted	category=adjective
+flummox	category=verb
+gravel	category=verb
+howling	category=adjective
+in awe of	category=adjective	score=0.5
+marvel	category=verb
+marvellously	category=adverb	score=0.5
+marvelous	category=adjective	score=0.5
+marvelously	category=adverb	score=0.5
+mystify	category=verb
+nonplus	category=verb
+perplex	category=verb
+puzzle	category=verb
+rattling	category=adjective
+staggering	category=adjective
+stun	category=verb
+stunned	category=adjective
+stupefaction	category=noun
+stupefied	category=adjective
+stupefy	category=verb
+stupefying	category=adjective	score=0.5
+stupid	category=adjective	score=-0.5
+stupify	category=verb
+superbly	category=adverb	score=0.5
+surprise	category=noun
+surprise	category=verb
+surprised	category=adjective
+surprisedly	category=adverb
+surprising	category=adjective
+surprisingly	category=adverb
+terrific	category=adjective	score=0.5
+terrifically	category=adverb	score=0.5
+thunderstruck	category=adjective
+toppingly	category=adverb	score=0.5
+tremendous	category=adjective	score=0.5
+trounce	category=verb
+wonder	category=noun
+wonder	category=verb
+wonderful	category=adjective	score=0.5
+wonderfully	category=adverb	score=0.5
+wonderment	category=noun
+wondrous	category=adjective	score=0.5
+wondrous	category=adverb	score=0.5
+wondrously	category=adverb	score=0.5
+wtf	category=	=

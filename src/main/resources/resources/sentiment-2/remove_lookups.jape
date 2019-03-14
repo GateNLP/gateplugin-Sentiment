@@ -1,0 +1,64 @@
+Phase: RemoveLookups
+Input: SentiWordLookup
+Options: control = all
+
+/* Check that Sentiment Lookups match the POS category of the word/s in the text. If not, delete the Lookup.
+   Note that only the gazetteer lists which are annotated as SentiWordLookup (rather than SentiLookup or Lookup) have POS categories associated with them, so these are the only ones we care about here. 
+   */
+
+Rule: LookupCategoryVerb
+( {SentiWordLookup.category == "verb" } ):tag
+-->
+:tag{
+  AnnotationSet tokens = gate.Utils.getOverlappingAnnotations(inputAS, tagAnnots, "Token");
+  for(Annotation token : tokens) {
+    String category = (String)token.getFeatures().get("category");
+    if(category != null && category.startsWith("V")) return;
+  }
+  // no nouns found: delete the lookup
+  inputAS.removeAll(tagAnnots);
+}
+
+
+Rule: LookupCategoryNoun
+( {SentiWordLookup.category == "noun" } ):tag
+-->
+:tag{
+  AnnotationSet tokens = gate.Utils.getOverlappingAnnotations(inputAS, tagAnnots, "Token");
+  for(Annotation token : tokens) {
+    String category = (String)token.getFeatures().get("category");
+    if(category != null && category.startsWith("N")) return;
+  }
+  // no nouns found: delete the lookup
+  inputAS.removeAll(tagAnnots);
+}
+
+
+
+Rule: LookupCategoryAdj
+( {SentiWordLookup.category == "adjective" } ):tag
+-->
+:tag{
+  AnnotationSet tokens = gate.Utils.getOverlappingAnnotations(inputAS, tagAnnots, "Token");
+  for(Annotation token : tokens) {
+    String category = (String)token.getFeatures().get("category");
+    if(category != null && category.startsWith("JJ")) return;
+  }
+  // no nouns found: delete the lookup
+  inputAS.removeAll(tagAnnots);
+}
+
+
+Rule: LookupCategoryAdv
+( {SentiWordLookup.category == "adverb" } ):tag
+-->
+:tag{
+  AnnotationSet tokens = gate.Utils.getOverlappingAnnotations(inputAS, tagAnnots, "Token");
+  for(Annotation token : tokens) {
+    String category = (String)token.getFeatures().get("category");
+    if(category != null && category.startsWith("RB")) return;
+  }
+  // no nouns found: delete the lookup
+  inputAS.removeAll(tagAnnots);
+}
+

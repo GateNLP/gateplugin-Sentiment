@@ -1,0 +1,154 @@
+Phase: SentimentTarget
+Input: Sentiment Entity Split Sentence Swear SentiWSLookupHigh Conditional Event ClauseBreak
+Options: control = appelt
+
+
+
+Rule: ConditionalQuestion
+Priority: 1000
+(
+ {Conditional within Question}
+):tag
+-->
+:tag.Conditional = {kind = Question, rule = ConditionalQuestion, opinion_holder = :tag.Conditional.opinion_holder, polarity = :tag.Conditional.polarity, type = :tag.Conditional.type},
+{
+ gate.AnnotationSet temp = (gate.AnnotationSet)bindings.get("tag");
+ outputAS.removeAll(temp);
+}
+
+Rule: ConditionalSentiment
+Priority: 800
+
+/* looks for conditional sentences containing a sentiment, 
+   and adds the score of the sentiment to the conditional 
+   sentence, creating a new temp annotation ConditionalSentiment
+*/
+
+( 
+ {Conditional contains Sentiment}
+):tag
+-->
+
+{
+  AnnotationSet ConditionalAS = (AnnotationSet) bindings.get("tag");
+  FeatureMap features = Factory.newFeatureMap();
+
+  AnnotationSet SentimentAS = inputAS.get("Sentiment", ConditionalAS.firstNode().getOffset(), ConditionalAS.lastNode().getOffset());
+  gate.Annotation SentimentAnn = (gate.Annotation) SentimentAS.iterator().next();
+
+  features.put("rule", "ConditionalSentiment");
+  features.put("score", SentimentAnn.getFeatures().get("score"));
+  features.put("polarity", SentimentAnn.getFeatures().get("polarity"));
+  features.put("emotion", SentimentAnn.getFeatures().get("emotion"));
+  
+ try{
+String content = doc.getContent().getContent(SentimentAnn.getStartNode().getOffset(),
+                 SentimentAnn.getEndNode().getOffset()).toString();
+
+  features.put("sentiment_string", content);
+  outputAS.add(ConditionalAS.firstNode(), ConditionalAS.lastNode(), "ConditionalSentiment", features);
+  }
+  catch(InvalidOffsetException ioe)
+  {throw new GateRuntimeException(ioe);} 
+
+} 
+
+ 
+Rule: EventSentiment
+Priority: 200
+
+({Event}):tag
+({Sentiment}):sentiTag
+-->
+:tag.EventSentiment = {polarity= :sentiTag.Sentiment.polarity, 
+                       score = :sentiTag.Sentiment.score, 
+                       sarcasm = :sentiTag.Sentiment.sarcasm,
+			emotion = :sentiTag.Sentiment.emotion,
+                       rule="EventSentiment", 
+                       sentiment_string = :sentiTag.Sentiment@cleanString, 
+                       event_string = :tag.Event@cleanString,
+                       eventURI = :tag.Event.instURI}
+
+
+Rule: SentimentEvent
+Priority: 200
+
+({Sentiment}):sentiTag
+ ({Event}):tag
+-->
+:tag.EventSentiment = {polarity= :sentiTag.Sentiment.polarity, 
+                       score = :sentiTag.Sentiment.score, 
+                       sarcasm = :sentiTag.Sentiment.sarcasm,
+                       rule="EventSentiment", 
+                       sentiment_string = :sentiTag.Sentiment@cleanString, 
+                       event_target = :tag.Event@cleanString,
+                       eventURI = :tag.Event.instURI}
+
+ 
+
+Rule: EntitySentiment
+Priority: 500
+
+({Sentiment}):sentiTag
+ ({Entity.kind != term}):tag
+-->
+:tag.EntitySentiment = {polarity= :sentiTag.Sentiment.polarity, 
+                        score = :sentiTag.Sentiment.score, 
+                        sarcasm = :sentiTag.Sentiment.sarcasm,
+			emotion = :sentiTag.Sentiment.emotion,
+                        rule="EntitySentiment", 
+                        sentiment_string = :sentiTag.Sentiment@cleanString, 
+                        entity_target = :tag.Entity@cleanString,
+                        entityURI = :tag.Entity.instURI }
+
+Rule: TermSentiment
+Priority: 400
+
+({Sentiment}):sentiTag
+ ({Entity.kind == term}):tag
+-->
+:tag.EntitySentiment = {polarity= :sentiTag.Sentiment.polarity, 
+                        score = :sentiTag.Sentiment.score, 
+                        sarcasm = :sentiTag.Sentiment.sarcasm,
+			emotion = :sentiTag.Sentiment.emotion,
+                        rule="TermSentiment", 
+                        sentiment_string = :sentiTag.Sentiment@cleanString, 
+                        entity_target = :tag.Entity@cleanString,
+                        entityURI = :tag.Entity.instURI }
+
+
+
+Rule: SentimentEntity
+Priority: 500
+
+({Entity.kind !=term}):tag
+({Sentiment}):sentiTag
+ 
+-->
+:tag.EntitySentiment = {polarity= :sentiTag.Sentiment.polarity, 
+                        score = :sentiTag.Sentiment.score, 
+                        sarcasm = :sentiTag.Sentiment.sarcasm,
+			emotion = :sentiTag.Sentiment.emotion,
+                        rule="SentimentEntity", 
+                        sentiment_string = :sentiTag.Sentiment@cleanString, 
+                        entity_target = :tag.Entity@cleanString,
+                        entityURI = :tag.Entity.instURI }
+
+
+Rule: SentimentTerm
+Priority: 400
+
+({Entity.kind ==term}):tag
+({Sentiment}):sentiTag
+ 
+-->
+:tag.EntitySentiment = {polarity= :sentiTag.Sentiment.polarity, 
+                        score = :sentiTag.Sentiment.score, 
+                        sarcasm = :sentiTag.Sentiment.sarcasm,
+			emotion = :sentiTag.Sentiment.emotion,
+                        rule="SentimentTerm", 
+                        sentiment_string = :sentiTag.Sentiment@cleanString, 
+                        entity_target = :tag.Entity@cleanString,
+                        entityURI = :tag.Entity.instURI }
+
+

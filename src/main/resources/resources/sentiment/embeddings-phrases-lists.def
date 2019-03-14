@@ -1,0 +1,7 @@
+affect_anger_embeddings_phrases.lst:sentiment:anger:phrase
+affect_bad_embeddings_phrases.lst:sentiment:bad:phrase
+affect_cute_embeddings_phrases.lst:sentiment:cute:phrase
+affect_disgust_embeddings_phrases.lst:sentiment:disgust:phrase
+affect_fear_embeddings_phrases.lst:sentiment:fear:phrase
+affect_good_embeddings_phrases.lst:sentiment:good:phrase
+affect_joy_embeddings_phrases.lst:sentiment:joy:phrase

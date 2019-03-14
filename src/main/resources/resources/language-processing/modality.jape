@@ -1,0 +1,121 @@
+Phase: Modality
+Input: Token VG NounChunk To Question Lookup FirstPersonPronoun SecondPersonPronoun Date
+Options: control = appelt
+
+/* finds imperatives in English tweets */
+
+
+Rule: IndirectDeliberative
+Priority: 2000
+/* I don't know if I should turn off the light */
+
+(
+ {Lookup.majorType == conditional}
+ {NounChunk}
+ {Lookup.majorType == command}
+):tag
+-->
+:tag.Directive = {kind = "indirectDeliberative", rule = "IndirectDeliberative"}
+ 
+Rule: ObligationNegativeLookup
+Priority: 1500
+/* You must not turn off the light */
+(
+ ({FirstPersonPronoun}|{SecondPersonPronoun})?
+ ):person
+( 
+ {Lookup.majorType == command, Lookup.minorType == negative}
+ ):tag
+-->
+ :tag.Directive = {kind = obligative, negation = "yes", rule = "ObligationNegativeLookup"}
+
+Rule: ObligationLookup
+Priority: 1000
+/* You must turn off the light */
+
+ (
+ ({FirstPersonPronoun}|{SecondPersonPronoun})?
+ ):person
+(
+ {Lookup.majorType == command}
+):tag
+-->
+:tag.Directive = {kind = obligative, rule = "ObligationLookup"}
+
+
+Rule: Infinitive
+/* to turn off the light */
+Priority: 500
+
+(
+ {To within {VG.type == NFVG}}
+ {Token.category == VB}
+): tag
+-->
+:tag.Infinitive = {}
+
+Rule: Infinitive2
+/* Where the "to" isn't contained in the VG) e.g. To celebrate Earth Hour.... */
+Priority: 500
+(
+ {To}
+ {VG.type == NFVG, VG.tense == Inf}
+):tag
+-->
+:tag.Infinitive = {rule = "infinitive2"}
+
+
+Rule: Imperative
+/* Please turn off the light. */
+Priority: 100
+(
+ {VG.type == NFVG}
+ ):tag
+ -->
+ :tag.Directive = {kind = imperative, rule = "Imperative"}
+ 
+ Rule: NotImperativeDate
+ Priority: 700
+ 
+ (
+ {Date contains VG}
+ )
+ -->
+ {}
+ 
+ Rule: NotImperativeNegative
+ Priority: 500
+ (
+ ({Token.category == PRP}|{NounChunk})
+   ({VG.rule == FVGSimPreActNeg}|{VG.rule == FVGSimPreActNeg1}|{VG.rule == FVGSimPreActNeg2})
+ ):tag
+--> 
+{}
+
+Rule: ThankYou
+Priority: 600
+(
+ {Token.root == "thank"}
+ {Token.root == "you"}
+):tag
+-->
+:tag.Thank = {}
+
+
+ Rule: ImperativeNegative
+ Priority: 200
+ (
+  {VG.rule == FVGSimPreActNeg}|{VG.rule == FVGSimPreActNeg1}|{VG.rule == FVGSimPreActNeg2}
+  ):tag
+  -->
+  :tag.Directive = {kind = prohibitive, rule = "ImperativeNegative"}
+
+
+Rule: Invitation
+Priority: 500
+
+(
+ {Lookup.majorType == invitation}
+ ):tag
+ -->
+ :tag.Invitation = {rule = "Invitation"}

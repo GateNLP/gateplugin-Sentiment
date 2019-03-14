@@ -1,0 +1,16 @@
+Phase: Sarcasm
+Input: Lookup Token Split
+Options: control = appelt
+
+
+Rule: SarcasmIndicator
+Priority: 500
+
+(
+ {Lookup.majorType == adverb, Lookup.minorType == sarcasm, Lookup.language == indicator}
+ {Lookup.majorType == sentiment, Lookup.minorType == sarcasm, Lookup.language == indicator}
+):tag
+-->
+:tag.Sarcasm = {rule = "SarcasmIndicator"}
+
+

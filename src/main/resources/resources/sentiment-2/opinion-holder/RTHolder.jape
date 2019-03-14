@@ -1,0 +1,15 @@
+Phase: RTHolder
+Input: RT UserID
+Options: control = appelt
+
+
+Rule: RTHolder
+Priority: 100
+(
+   {RT}
+)
+({UserID}):holder
+
+ -->
+ :holder.Holder = {username = :holder.UserID.string}
+ 

@@ -1,0 +1,56 @@
+Phase:	Conditional
+Input: Split VG ConditionalIndicator
+Options: control = appelt
+
+Rule: Conditional0
+// If + simple present --> simple present
+
+(
+ {ConditionalIndicator}
+ {VG.tense == SimPre}
+ {VG.tense == SimPre}
+ {Split}
+):tag
+-->
+:tag.Conditional = {type = "0"}
+
+
+Rule: Conditional1
+// If + simple present --> simple future
+
+(
+ {ConditionalIndicator}
+ {VG.tense == SimPre}
+ {VG.tense == SimFut}
+ {Split}
+):tag
+-->
+:tag.Conditional = {type = "1"}
+
+
+Rule: Conditional2
+// If + past --> would + infinitive
+
+(
+ {ConditionalIndicator}
+ {VG.tense == SimPas}
+ {VG.tense == none, VG.type == MODAL}
+ {Split}
+):tag
+-->
+:tag.Conditional = {type = "2"}
+
+
+Rule: Conditional3
+// If + past perfect --> present perfect
+
+(
+ {ConditionalIndicator}
+ {VG.tense == PasPer}
+ {VG.tense == HaveVBN, VG.type == MODAL}
+ {Split}
+):tag
+-->
+:tag.Conditional = {type = "3"}
+
+

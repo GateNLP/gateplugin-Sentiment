@@ -1,0 +1,35 @@
+Phase: SentimentEvent
+Input: SentenceSentiment Event
+Options: control = appelt
+
+
+Rule: SentenceSentimentEvent
+Priority: 100
+
+// If a sentence containing a sentiment also contains an Event, 
+// annotate the Event as EventSentiment
+
+(
+ {SentenceSentiment contains Event}
+):tag
+-->
+//:tag.EventSentiment = {polarity= :sentiTag.Sentiment.polarity, score = //:sentiTag.Sentiment.score, sentiment_string = :sentiTag.Sentiment@cleanString, //rule="SentenceSentimentEvent"}
+
+{
+  AnnotationSet SentenceAS = (AnnotationSet) bindings.get("tag");
+  gate.Annotation SentenceAnn = (gate.Annotation) SentenceAS.iterator().next();
+
+  // get Event info from within Sentence annotation
+  AnnotationSet EventAS = inputAS.get("Event", SentenceAS.firstNode().getOffset(), SentenceAS.lastNode().getOffset());
+  
+  gate.Annotation EventAnn = (gate.Annotation) EventAS.iterator().next();
+  
+  FeatureMap features = Factory.newFeatureMap();
+  features.putAll(SentenceAnn.getFeatures()); 
+  features.putAll(EventAnn.getFeatures());
+  features.put("eventURI", EventAnn.getFeatures().get("instURI"));
+  features.put("rule", "SentenceSentimentEvent");
+  outputAS.add(EventAS.firstNode(), EventAS.lastNode(), "EventSentiment", features);
+}
+
+

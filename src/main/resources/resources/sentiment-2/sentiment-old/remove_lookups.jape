@@ -1,0 +1,63 @@
+Phase: RemoveLookups
+Input: Lookup
+Options: control = all
+
+/* Check that Sentiment Lookups match the POS category of the word/s in the text. If not, delete the Lookup
+*/
+
+Rule: LookupCategoryVerb
+( {Lookup.category == "verb" } ):tag
+-->
+:tag{
+  AnnotationSet tokens = gate.Utils.getOverlappingAnnotations(inputAS, tagAnnots, "Token");
+  for(Annotation token : tokens) {
+    String category = (String)token.getFeatures().get("category");
+    if(category != null && category.startsWith("V")) return;
+  }
+  // no nouns found: delete the lookup
+  inputAS.removeAll(tagAnnots);
+}
+
+
+Rule: LookupCategoryNoun
+( {Lookup.category == "noun" } ):tag
+-->
+:tag{
+  AnnotationSet tokens = gate.Utils.getOverlappingAnnotations(inputAS, tagAnnots, "Token");
+  for(Annotation token : tokens) {
+    String category = (String)token.getFeatures().get("category");
+    if(category != null && category.startsWith("N")) return;
+  }
+  // no nouns found: delete the lookup
+  inputAS.removeAll(tagAnnots);
+}
+
+
+
+Rule: LookupCategoryAdj
+( {Lookup.category == "adjective" } ):tag
+-->
+:tag{
+  AnnotationSet tokens = gate.Utils.getOverlappingAnnotations(inputAS, tagAnnots, "Token");
+  for(Annotation token : tokens) {
+    String category = (String)token.getFeatures().get("category");
+    if(category != null && category.startsWith("JJ")) return;
+  }
+  // no nouns found: delete the lookup
+  inputAS.removeAll(tagAnnots);
+}
+
+
+Rule: LookupCategoryAdv
+( {Lookup.category == "adverb" } ):tag
+-->
+:tag{
+  AnnotationSet tokens = gate.Utils.getOverlappingAnnotations(inputAS, tagAnnots, "Token");
+  for(Annotation token : tokens) {
+    String category = (String)token.getFeatures().get("category");
+    if(category != null && category.startsWith("RB")) return;
+  }
+  // no nouns found: delete the lookup
+  inputAS.removeAll(tagAnnots);
+}
+
