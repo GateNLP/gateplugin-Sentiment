@@ -1,4 +1,4 @@
-package gate.creole.french;
+package gate.creole.sentiment;
 
 import gate.creole.PackagedController;
 import gate.creole.metadata.AutoInstance;
