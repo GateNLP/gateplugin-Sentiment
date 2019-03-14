@@ -773,35 +773,14 @@
       <collectionType>java.util.ArrayList</collectionType>
     </prList>
     <resourceType>gate.creole.ConditionalSerialAnalyserController</resourceType>
-    <resourceName>Generic English Opinion Mining</resourceName>
+    <resourceName>Generic English Sentiment Analysis</resourceName>
     <initParams class="gate.util.persistence.MapPersistence">
       <mapType>gate.util.SimpleFeatureMapImpl</mapType>
       <localMap/>
     </initParams>
     <features class="gate.util.persistence.MapPersistence">
       <mapType>gate.util.SimpleFeatureMapImpl</mapType>
-      <localMap>
-        <entry>
-          <string>@author</string>
-          <string>Diana Maynard</string>
-        </entry>
-        <entry>
-          <string>%@outputdir</string>
-          <string>$gatehome$../gate-extras/arcomem/applications/appdoc/</string>
-        </entry>
-        <entry>
-          <string>%@commentFormat</string>
-          <string>html</string>
-        </entry>
-        <entry>
-          <string>%@templatedir</string>
-          <string>$gatehome$../gate-extras/plugins/AppDoc/templates/html_default/</string>
-        </entry>
-        <entry>
-          <string>@comment</string>
-          <string>An all-in-one app for testing Arcomem opinion mining stuff, which uses default ANNIE plus the opinion mining stuff, but doesn&apos;t use events or terms.</string>
-        </entry>
-      </localMap>
+      <localMap/>
     </features>
   </application>
 </gate.util.persistence.GateApplication>
