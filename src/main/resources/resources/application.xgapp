@@ -324,7 +324,7 @@
                 <entry>
                   <string>listsURL</string>
                   <gate.util.persistence.PersistenceManager-RRPersistence>
-                    <uriString>$relpath$sentiment/phrases-lists.def</uriString>
+                    <uriString>$relpath$gazetteer/phrases-lists.def</uriString>
                   </gate.util.persistence.PersistenceManager-RRPersistence>
                 </entry>
                 <entry>
@@ -377,7 +377,7 @@
                 <entry>
                   <string>configFileURL</string>
                   <gate.util.persistence.PersistenceManager-RRPersistence>
-                    <uriString>$relpath$sentiment/words-lists.def</uriString>
+                    <uriString>$relpath$gazetteer/words-lists.def</uriString>
                   </gate.util.persistence.PersistenceManager-RRPersistence>
                 </entry>
               </localMap>
@@ -615,7 +615,7 @@
                 <entry>
                   <string>grammarURL</string>
                   <gate.util.persistence.PersistenceManager-RRPersistence>
-                    <uriString>$relpath$sentiment-2/main.jape</uriString>
+                    <uriString>$relpath$jape/main.jape</uriString>
                   </gate.util.persistence.PersistenceManager-RRPersistence>
                 </entry>
               </localMap>
@@ -682,7 +682,7 @@
                 <entry>
                   <string>listsURL</string>
                   <gate.util.persistence.PersistenceManager-RRPersistence>
-                    <uriString>$relpath$sentiment/words-lists.def</uriString>
+                    <uriString>$relpath$gazetteer/words-lists.def</uriString>
                   </gate.util.persistence.PersistenceManager-RRPersistence>
                 </entry>
               </localMap>
