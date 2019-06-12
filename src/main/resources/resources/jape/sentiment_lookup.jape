@@ -71,6 +71,13 @@ Priority: 10
 -->
 :tag.SentiWSLookupHigh = {polarity= negative,  emotion = :tag.SentiWordLookup.minorType, score = -0.5, rule="SentiWordLookupNegHighScore"}
 
+Rule: SentiLookupNegHighScore
+Priority: 10
+(
+ {SentiLookup.majorType == sentiment}
+ ):tag
+-->
+:tag.SentiWSLookupHigh = {polarity= negative,  emotion = :tag.SentiLookup.minorType, score = -0.5, rule="SentiLookupNegHighScore"}
 
 Rule: SentiLookupNegHighScore
 Priority: 10
